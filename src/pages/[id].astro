@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProgressBar from '../components/ProgressBar.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+---
+
+<Layout 
+  title={`${post.data.title} - Siddharth Bhadu`} 
+  description={post.data.description}
+  image={post.data.heroImage}
+>
+  <ProgressBar />
+  
+  <div class="post-layout">
+    <article class="prose">
+      {post.data.heroImage && (
+        <img src={post.data.heroImage} alt="" class="cover-image" />
+      )}
+      <div class="prose-header">
+        <time datetime={post.data.pubDate.toISOString()} class="post-date">
+          {
+            post.data.pubDate.toLocaleDateString('en-us', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
+          }
+        </time>
+        <h1>{post.data.title}</h1>
+        <hr />
+      </div>
+      <div class="content-body">
+        <Content />
+      </div>
+    </article>
+
+    {headings.length > 0 && (
+      <aside class="toc-sidebar hidden-mobile">
+        <div class="toc-sticky">
+          <h4>Table of Contents</h4>
+          <ul class="toc-list">
+            {headings.map((h: any) => (
+              <li class={`toc-level-${h.depth}`}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .post-layout {
+    display: flex;
+    gap: 3rem;
+    position: relative;
+    align-items: flex-start;
+  }
+  .prose {
+    flex: 1;
+    min-width: 0;
+  }
+  .cover-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+  }
+  .prose-header {
+    margin-bottom: 2rem;
+  }
+  .prose-header h1 {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 3rem;
+  }
+  .post-date {
+    font-family: monospace;
+    color: var(--accent);
+  }
+
+  /* TOC Sidebar */
+  .toc-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+  }
+  .toc-sticky {
+    position: sticky;
+    top: 6rem;
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .toc-sticky h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+  }
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .toc-list a {
+    text-decoration: none;
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    display: block;
+  }
+  .toc-list a:hover {
+    color: var(--accent);
+  }
+  .toc-level-3 { padding-left: 1rem; font-size: 0.85rem; }
+  .toc-level-4 { padding-left: 2rem; }
+  
+  @media(max-width: 900px) {
+    .hidden-mobile { display: none; }
+  }
+</style>

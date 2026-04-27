@@ -1,0 +1,61 @@
+---
+---
+<div class="bandwidth-chart liquid-glass">
+  <div class="chart-header">
+    <h4>USB4 vs PCIe Gen4 Bandwidth</h4>
+    <button id="toggle-chart" class="btn">Switch to PCIe</button>
+  </div>
+  <div class="bars">
+    <div class="bar-container">
+      <span class="label">Read</span>
+      <div class="bar-track"><div id="bar-read" class="bar-fill" style="width: 25%"></div></div>
+      <span id="val-read" class="val">22 Gbps</span>
+    </div>
+    <div class="bar-container">
+      <span class="label">Write</span>
+      <div class="bar-track"><div id="bar-write" class="bar-fill" style="width: 20%"></div></div>
+      <span id="val-write" class="val">18 Gbps</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bandwidth-chart { padding: 1.5rem; margin: 2rem 0; }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .chart-header h4 { margin: 0; font-family: var(--font-body); font-weight: 600; font-size: 1.1rem; }
+  .btn { background: var(--surface); color: var(--foreground); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
+  .btn:hover { background: var(--border); }
+  .bar-container { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+  .label { width: 50px; font-size: 0.9rem; color: var(--muted-foreground); }
+  .bar-track { flex: 1; background: var(--surface); height: 12px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .bar-fill { height: 100%; background: var(--accent); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .val { width: 60px; font-size: 0.85rem; font-family: monospace; text-align: right; }
+</style>
+
+<script>
+  let isUSB = true;
+  const btn = document.getElementById('toggle-chart');
+  const barRead = document.getElementById('bar-read');
+  const barWrite = document.getElementById('bar-write');
+  const valRead = document.getElementById('val-read');
+  const valWrite = document.getElementById('val-write');
+
+  if (btn) {
+    btn.addEventListener('click', () => {
+      isUSB = !isUSB;
+      if (isUSB) {
+        btn.textContent = 'Switch to PCIe';
+        if(barRead) barRead.style.width = '25%';
+        if(barWrite) barWrite.style.width = '20%';
+        if(valRead) valRead.textContent = '22 Gbps';
+        if(valWrite) valWrite.textContent = '18 Gbps';
+      } else {
+        btn.textContent = 'Switch to USB4';
+        if(barRead) barRead.style.width = '85%';
+        if(barWrite) barWrite.style.width = '80%';
+        if(valRead) valRead.textContent = '128 Gbps';
+        if(valWrite) valWrite.textContent = '112 Gbps';
+      }
+    });
+  }
+</script>

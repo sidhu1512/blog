@@ -1,0 +1,63 @@
+---
+---
+<div class="hardware-toggle liquid-glass">
+  <div class="toggle-tabs">
+    <button id="tab-3090" class="tab active">RTX 3090</button>
+    <button id="tab-4090" class="tab">RTX 4090</button>
+  </div>
+  <table class="specs-table">
+    <tbody>
+      <tr>
+        <td>VRAM</td>
+        <td>24 GB GDDR6X</td>
+      </tr>
+      <tr>
+        <td>Memory Bus</td>
+        <td>384-bit</td>
+      </tr>
+      <tr>
+        <td>CUDA Cores</td>
+        <td id="spec-cuda">10,496</td>
+      </tr>
+      <tr>
+        <td>TDP</td>
+        <td id="spec-tdp">350W</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .hardware-toggle { padding: 1.5rem; margin: 2rem 0; }
+  .toggle-tabs { display: flex; gap: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem; }
+  .tab { background: transparent; color: var(--muted-foreground); border: none; font-size: 1rem; cursor: pointer; transition: color 0.2s; font-family: var(--font-body); }
+  .tab:hover { color: var(--foreground); }
+  .tab.active { color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--accent); margin-bottom: -1rem; padding-bottom: 1rem; }
+  .specs-table { width: 100%; border-collapse: collapse; }
+  .specs-table td { padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .specs-table td:first-child { color: var(--muted-foreground); }
+  .specs-table td:last-child { text-align: right; font-family: monospace; color: var(--foreground); }
+  .specs-table tr:last-child td { border-bottom: none; }
+</style>
+
+<script>
+  const tab3090 = document.getElementById('tab-3090');
+  const tab4090 = document.getElementById('tab-4090');
+  const specCuda = document.getElementById('spec-cuda');
+  const specTdp = document.getElementById('spec-tdp');
+
+  if (tab3090 && tab4090) {
+    tab3090.addEventListener('click', () => {
+      tab3090.classList.add('active');
+      tab4090.classList.remove('active');
+      if(specCuda) specCuda.textContent = '10,496';
+      if(specTdp) specTdp.textContent = '350W';
+    });
+    tab4090.addEventListener('click', () => {
+      tab4090.classList.add('active');
+      tab3090.classList.remove('active');
+      if(specCuda) specCuda.textContent = '16,384';
+      if(specTdp) specTdp.textContent = '450W';
+    });
+  }
+</script>

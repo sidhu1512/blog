@@ -1,0 +1,41 @@
+---
+const currentYear = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="footer-container">
+    <p>&copy; {currentYear} Siddharth Bhadu. All rights reserved.</p>
+    <div class="socials">
+      <a href="https://github.com/sidhu1512" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://www.linkedin.com/in/siddharth-bhadu-71a483193" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+    margin-top: 4rem;
+  }
+  .footer-container {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted-foreground);
+    font-size: 0.85rem;
+  }
+  .socials {
+    display: flex;
+    gap: 1rem;
+  }
+  .socials a {
+    text-decoration: none;
+    color: var(--muted-foreground);
+  }
+  .socials a:hover {
+    color: var(--accent);
+  }
+</style

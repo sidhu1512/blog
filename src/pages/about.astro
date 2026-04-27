@@ -1,0 +1,87 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="About - Siddharth Bhadu" description="Software Engineer specializing in Java, Spring Boot, and low-level systems.">
+  <div class="about-container">
+    <div class="bio">
+      <h1>Siddharth Bhadu.</h1>
+      <p class="lead">
+        I craft high-performance backend systems and explore low-level computing — turning complex problems into elegant solutions.
+      </p>
+      
+      <p>
+        I am a Software Engineer with 3+ years of experience, specializing in Java and the Spring ecosystem. I've scaled data exports to 1M+ rows, accelerated data retrieval by 25%, and automated 6+ hour manual workflows with Spring Batch at companies like Oqulto Technologies and Capgemini.
+      </p>
+
+      <p>
+        Beyond backend development, I'm deeply passionate about systems programming, AI integration, and building tools that eliminate developer friction. Whether it's building a <strong>CHIP-8 Emulator in Java</strong>, optimizing a local LLM benchmarking tool, or designing microservices, I believe great software comes from understanding systems at every level.
+      </p>
+
+      <h2>Selected Projects</h2>
+      <ul class="projects-list">
+        <li>
+          <strong><a href="https://github.com/sidhu1512/chip-8" target="_blank">CHIP-8 Emulator</a></strong> — 35-opcode virtual machine with CPU emulation & low-level graphics rendering.
+        </li>
+        <li>
+          <strong><a href="https://github.com/sidhu1512/PocketBench" target="_blank">PocketBench</a></strong> — Local LLM benchmarking tool with automated performance testing.
+        </li>
+        <li>
+          <strong><a href="https://sidhu1512.github.io/SharePaste/" target="_blank">SharePaste</a></strong> — Serverless paste service with Zstandard compression & zero data storage via WASM.
+        </li>
+      </ul>
+
+      <h2>Connect</h2>
+      <ul class="social-links">
+        <li><a href="https://github.com/sidhu1512" target="_blank">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/siddharth-bhadu-71a483193" target="_blank">LinkedIn</a></li>
+        <li><a href="https://sidhu1512.github.io/" target="_blank">Portfolio</a></li>
+        <li><a href="mailto:siddharthbhadu.work@gmail.com">Email</a></li>
+      </ul>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .about-container {
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+  h1 {
+    margin-bottom: 1.5rem;
+  }
+  .lead {
+    font-size: 1.25rem;
+    color: var(--foreground);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  .projects-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2.5rem;
+  }
+  .projects-list li {
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--border);
+  }
+  .projects-list a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .projects-list a:hover {
+    text-decoration: underline;
+  }
+  .social-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .social-links a {
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+</style>

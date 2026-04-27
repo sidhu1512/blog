@@ -1,0 +1,66 @@
+---
+const pathname = new URL(Astro.request.url).pathname;
+const base = import.meta.env.BASE_URL;
+// ensure base doesn't mess up matching
+const normalizedPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+---
+<header class="header">
+  <div class="header-container">
+    <a href="/" class="logo">
+      Siddharth.
+    </a>
+    <nav>
+      <a href="/" class="nav-btn">Portfolio</a>
+      <a href={base} class={`nav-btn ${normalizedPath === normalizedBase ? 'active' : ''}`}>Blog</a>
+      <a href={`${normalizedBase}/about`} class={`nav-btn ${normalizedPath === `${normalizedBase}/about` ? 'active' : ''}`}>About</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-container {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--foreground);
+  }
+  .logo:hover {
+    color: var(--accent);
+  }
+  nav {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .nav-btn {
+    text-decoration: none;
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    color: var(--foreground);
+    background: var(--surface);
+  }
+</style>

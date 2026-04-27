@@ -1,0 +1,24 @@
+---
+title: "The eGPU Myth: Why a ~$300 Dock Won't Turn Your GPU Into an AI Workstation"
+description: "We benchmarked an RTX 3090 over USB4. The engineering is brilliant. The numbers aren't there yet."
+pubDate: "2026-04-26"
+heroImage: "/images/cover_hardware_1777318569212.png"
+---
+
+import BandwidthChart from '../../components/interactive/BandwidthChart.astro';
+
+There is a growing trend in the local AI community: people buying cheap eGPU enclosures and expecting workstation-level performance on their thin-and-light laptops.
+
+While the engineering behind running an NVIDIA driver over USB4 is incredibly impressive, the raw physics of PCIe lanes cannot be ignored.
+
+### The Bandwidth Problem
+
+When you connect a GPU via USB4, you are fundamentally constrained by the protocol. An RTX 3090 natively sits on a PCIe Gen4 x16 slot, which offers immense bandwidth for passing weights from system memory to VRAM.
+
+Look at the difference in theoretical bandwidth:
+
+<BandwidthChart />
+
+As you can see, when you click to toggle between native PCIe Gen4 and USB4, the available bandwidth for read/write operations plummets by nearly 85%.
+
+For gaming, this might result in a 10-15% frame drop. For AI inference—specifically speculative decoding or context gathering—this bottleneck is fatal. You simply cannot move data fast enough to keep the CUDA cores fed.
