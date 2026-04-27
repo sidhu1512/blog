@@ -49,7 +49,7 @@ body {
 main {
   flex: 1 0 auto;
   width: 100%;
-  max-width: 56rem; /* Widened for TOC and larger cards */
+  max-width: 68rem;
   margin: 0 auto;
   padding: 4rem 1.5rem 8rem;
 }

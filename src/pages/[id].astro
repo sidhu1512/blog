@@ -13,6 +13,8 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
+const base = import.meta.env.BASE_URL;
+const backUrl = base.endsWith('/') ? base : `${base}/`;
 ---
 
 <Layout 
@@ -24,6 +26,8 @@ const { Content, headings } = await render(post);
   
   <div class="post-layout">
     <article class="prose">
+      <a href={backUrl} class="back-link">&larr; Back to all blogs</a>
+      
       {post.data.heroImage && (
         <img src={post.data.heroImage} alt="" class="cover-image" />
       )}
@@ -60,18 +64,34 @@ const { Content, headings } = await render(post);
       </aside>
     )}
   </div>
+
+  <button id="scroll-to-top" class="scroll-to-top" aria-label="Scroll to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+  </button>
 </Layout>
 
 <style>
   .post-layout {
     display: flex;
-    gap: 3rem;
+    gap: 4rem; /* Increased gap slightly */
     position: relative;
     align-items: flex-start;
   }
   .prose {
     flex: 1;
     min-width: 0;
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--muted-foreground);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+    font-weight: 500;
+  }
+  .back-link:hover {
+    color: var(--accent);
   }
   .cover-image {
     width: 100%;
@@ -98,10 +118,20 @@ const { Content, headings } = await render(post);
   .toc-sidebar {
     width: 250px;
     flex-shrink: 0;
-  }
-  .toc-sticky {
+    /* Proper sticky config */
+    align-self: flex-start;
     position: sticky;
     top: 6rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
+  
+  /* Hide scrollbar for clean TOC look */
+  .toc-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .toc-sticky {
     background: var(--surface);
     padding: 1.5rem;
     border-radius: 12px;
@@ -127,6 +157,7 @@ const { Content, headings } = await render(post);
     font-size: 0.9rem;
     transition: color 0.2s;
     display: block;
+    line-height: 1.4;
   }
   .toc-list a:hover {
     color: var(--accent);
@@ -134,7 +165,62 @@ const { Content, headings } = await render(post);
   .toc-level-3 { padding-left: 1rem; font-size: 0.85rem; }
   .toc-level-4 { padding-left: 2rem; }
   
+  /* Scroll to top FAB */
+  .scroll-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--surface);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 99;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .scroll-to-top:not(.visible) {
+    transform: translateY(20px);
+  }
+  .scroll-to-top:hover {
+    background: var(--border);
+    color: var(--accent);
+  }
+
   @media(max-width: 900px) {
     .hidden-mobile { display: none; }
+    .scroll-to-top {
+      bottom: 1rem;
+      right: 1rem;
+    }
   }
 </style>
+
+<script>
+  // Scroll to Top functionality
+  const scrollBtn = document.getElementById('scroll-to-top');
+  if (scrollBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 500) {
+        scrollBtn.classList.add('visible');
+      } else {
+        scrollBtn.classList.remove('visible');
+      }
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+</script>
