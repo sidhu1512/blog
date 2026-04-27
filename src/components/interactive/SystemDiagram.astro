@@ -1,0 +1,96 @@
+---
+---
+<div class="diagram-container liquid-glass">
+  <div class="controls">
+    <button id="sim-traffic" class="btn">Simulate Traffic Spike</button>
+  </div>
+  <div class="architecture">
+    <div class="node user">Users / Clients</div>
+    <div class="arrow" id="arrow-1">↓</div>
+    <div class="node lb">API Gateway / Load Balancer</div>
+    <div class="arrows-split">
+      <div class="arrow" id="arrow-2a">↙</div>
+      <div class="arrow" id="arrow-2b">↓</div>
+      <div class="arrow" id="arrow-2c">↘</div>
+    </div>
+    <div class="servers">
+      <div class="node server" id="srv-1">Service A<br/><span class="load">Load: 10%</span></div>
+      <div class="node server" id="srv-2">Service B<br/><span class="load">Load: 12%</span></div>
+      <div class="node server" id="srv-3">Service C<br/><span class="load">Load: 9%</span></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .diagram-container { padding: 2.5rem 1.5rem; margin: 2.5rem 0; text-align: center; border-left: 4px solid var(--accent); }
+  .controls { margin-bottom: 2rem; }
+  .btn { background: var(--surface); color: var(--foreground); border: 1px solid var(--accent); padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 500; font-family: var(--font-body); transition: all 0.2s; }
+  .btn:hover:not(:disabled) { background: var(--accent); color: var(--background); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--border); }
+  
+  .architecture { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-family: monospace; font-size: 0.9rem; }
+  .node { padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--background); color: var(--foreground); transition: background 0.3s, border-color 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  .user { border-color: #3b82f6; }
+  .lb { background: var(--surface); border-color: var(--muted-foreground); font-weight: 600; width: 250px; }
+  .servers { display: flex; gap: 1rem; margin-top: 0.5rem; width: 100%; justify-content: center; flex-wrap: wrap; }
+  .server { width: 140px; }
+  .load { color: var(--muted-foreground); font-size: 0.8rem; }
+  
+  .arrow { color: var(--muted-foreground); font-size: 1.5rem; transition: color 0.3s, transform 0.3s, text-shadow 0.3s; }
+  .arrows-split { display: flex; width: 320px; justify-content: space-between; margin: 0.5rem 0; padding: 0 2rem; }
+  
+  /* Animations */
+  .active-flow { color: var(--accent); text-shadow: 0 0 10px var(--accent); transform: translateY(3px); }
+  .overload { background: #3a1c1c; border-color: #ef4444; }
+  .overload .load { color: #fca5a5; }
+</style>
+
+<script>
+  const btn = document.getElementById('sim-traffic');
+  const srv1 = document.getElementById('srv-1');
+  const srv2 = document.getElementById('srv-2');
+  const srv3 = document.getElementById('srv-3');
+  const arrows = [document.getElementById('arrow-1'), document.getElementById('arrow-2a'), document.getElementById('arrow-2b'), document.getElementById('arrow-2c')];
+  
+  if (btn) {
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      btn.textContent = 'Traffic Spiking...';
+      
+      arrows.forEach(a => a?.classList.add('active-flow'));
+      
+      let tick = 0;
+      const interval = setInterval(() => {
+        tick++;
+        const loads = [
+          Math.min(100, 10 + tick * 12 + Math.random() * 15),
+          Math.min(100, 12 + tick * 15 + Math.random() * 15),
+          Math.min(100, 9 + tick * 10 + Math.random() * 15)
+        ];
+        
+        const updateNode = (node, name, load) => {
+          if(!node) return;
+          node.innerHTML = `${name}<br/><span class="load">Load: ${load.toFixed(0)}%</span>`;
+          if (load > 85) node.classList.add('overload');
+        };
+        
+        updateNode(srv1, 'Service A', loads[0]);
+        updateNode(srv2, 'Service B', loads[1]);
+        updateNode(srv3, 'Service C', loads[2]);
+        
+        if (tick > 12) {
+          clearInterval(interval);
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = 'Simulate Traffic Spike';
+            arrows.forEach(a => a?.classList.remove('active-flow'));
+            [srv1, srv2, srv3].forEach(s => s?.classList.remove('overload'));
+            updateNode(srv1, 'Service A', 10);
+            updateNode(srv2, 'Service B', 12);
+            updateNode(srv3, 'Service C', 9);
+          }, 2000);
+        }
+      }, 300);
+    });
+  }
+</script>

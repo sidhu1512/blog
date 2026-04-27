@@ -159,8 +159,11 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
     display: block;
     line-height: 1.4;
   }
-  .toc-list a:hover {
+  .toc-list a:hover, .toc-list a.active {
     color: var(--accent);
+  }
+  .toc-list a.active {
+    font-weight: 600;
   }
   .toc-level-3 { padding-left: 1rem; font-size: 0.85rem; }
   .toc-level-4 { padding-left: 2rem; }
@@ -223,4 +226,29 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
+
+  // TOC Scrollspy
+  const observerOptions = {
+    root: null,
+    rootMargin: '-10% 0px -80% 0px',
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute('id');
+      const tocLink = document.querySelector(`.toc-list a[href="#${id}"]`);
+      if (entry.isIntersecting && tocLink) {
+        document.querySelectorAll('.toc-list a').forEach(link => link.classList.remove('active'));
+        tocLink.classList.add('active');
+      }
+    });
+  }, observerOptions);
+
+  // Use setTimeout to ensure DOM is fully loaded before observing
+  setTimeout(() => {
+    document.querySelectorAll('.content-body h2, .content-body h3').forEach((section) => {
+      observer.observe(section);
+    });
+  }, 100);
 </script>
