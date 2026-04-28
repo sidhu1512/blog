@@ -163,7 +163,16 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
     color: var(--accent);
   }
   .toc-list a.active {
-    font-weight: 600;
+    /* Removed font-weight to prevent layout shift that caused 2-line breaks */
+  }
+  .toc-list li {
+    position: relative;
+  }
+  .toc-list a.active::before {
+    content: '→';
+    position: absolute;
+    left: -1.2rem;
+    color: var(--accent);
   }
   .toc-level-3 { padding-left: 1rem; font-size: 0.85rem; }
   .toc-level-4 { padding-left: 2rem; }
@@ -227,28 +236,46 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
     });
   }
 
-  // TOC Scrollspy
-  const observerOptions = {
-    root: null,
-    rootMargin: '-10% 0px -80% 0px',
-    threshold: 0
-  };
+  // Improved TOC Scrollspy
+  function updateTOC() {
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    const headings = Array.from(document.querySelectorAll('.content-body h2, .content-body h3, .content-body h4'));
+    
+    if (headings.length === 0) return;
 
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      const id = entry.target.getAttribute('id');
-      const tocLink = document.querySelector(`.toc-list a[href="#${id}"]`);
-      if (entry.isIntersecting && tocLink) {
-        document.querySelectorAll('.toc-list a').forEach(link => link.classList.remove('active'));
-        tocLink.classList.add('active');
+    // Check if user is at the absolute bottom of the page to highlight the last item (e.g. Conclusion)
+    const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 50);
+    
+    if (isAtBottom) {
+      tocLinks.forEach(link => link.classList.remove('active'));
+      const lastHeading = headings[headings.length - 1];
+      const activeLink = document.querySelector(`.toc-list a[href="#${lastHeading.id}"]`);
+      if (activeLink) activeLink.classList.add('active');
+      return;
+    }
+
+    // Otherwise, find the heading closest to the top of the screen
+    let currentHeading = headings[0];
+    for (let i = 0; i < headings.length; i++) {
+      const rect = headings[i].getBoundingClientRect();
+      // 150px offset so it highlights just as it reaches the top third of the screen
+      if (rect.top <= 150) {
+        currentHeading = headings[i];
+      } else {
+        break;
       }
-    });
-  }, observerOptions);
+    }
 
-  // Use setTimeout to ensure DOM is fully loaded before observing
-  setTimeout(() => {
-    document.querySelectorAll('.content-body h2, .content-body h3').forEach((section) => {
-      observer.observe(section);
-    });
-  }, 100);
+    if (currentHeading) {
+      tocLinks.forEach(link => link.classList.remove('active'));
+      const activeLink = document.querySelector(`.toc-list a[href="#${currentHeading.id}"]`);
+      if (activeLink) activeLink.classList.add('active');
+    }
+  }
+
+  // Use passive listener for better scroll performance
+  window.addEventListener('scroll', updateTOC, { passive: true });
+  
+  // Initial check on page load
+  setTimeout(updateTOC, 100);
 </script>
