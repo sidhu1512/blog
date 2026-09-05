@@ -1,58 +1,122 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ProgressBar from '../components/ProgressBar.astro';
+import CopyButton from '../components/CopyButton.astro';
+import ShareButtons from '../components/ShareButtons.astro';
+import AuthorBio from '../components/AuthorBio.astro';
+import PostNavigation from '../components/PostNavigation.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map((post) => ({
+  const posts = (await getCollection('blog')).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+  return posts.map((post, index) => ({
     params: { id: post.id },
-    props: { post },
+    props: {
+      post,
+      prevPost: index < posts.length - 1 ? { id: posts[index + 1].id, title: posts[index + 1].data.title } : undefined,
+      nextPost: index > 0 ? { id: posts[index - 1].id, title: posts[index - 1].data.title } : undefined,
+    },
   }));
 }
 
-const { post } = Astro.props;
+const { post, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(post);
 const base = import.meta.env.BASE_URL;
-const backUrl = base.endsWith('/') ? base : `${base}/`;
+const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+
+// Calculate reading time (~200 words per minute)
+const words = post.body?.split(/\s+/).length ?? 0;
+const readingTime = Math.max(1, Math.ceil(words / 200));
+const tags = post.data.tags ?? [];
+
+// Canonical post URL for sharing
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://sidhu1512.github.io';
+const fullPostUrl = `${siteUrl}${normalizedBase}${post.id}/`;
+
+function getAssetUrl(path?: string) {
+  if (!path) return undefined;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith(normalizedBase)) return path;
+  return `${normalizedBase}${path.replace(/^\//, '')}`;
+}
+
+const coverImageUrl = getAssetUrl(post.data.heroImage);
 ---
 
 <Layout 
   title={`${post.data.title} - Siddharth Bhadu`} 
   description={post.data.description}
-  image={post.data.heroImage}
+  image={coverImageUrl}
+  type="article"
+  pubDate={post.data.pubDate}
+  tags={tags}
 >
   <ProgressBar />
+  <CopyButton />
   
   <div class="post-layout">
     <article class="prose">
-      <a href={backUrl} class="back-link">&larr; Back to all blogs</a>
+      <!-- Breadcrumbs -->
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="https://sidhu1512.github.io/">Portfolio</a>
+        <span class="separator">/</span>
+        <a href={base}>Blog</a>
+        <span class="separator">/</span>
+        <span class="current" aria-current="page">{post.data.title}</span>
+      </nav>
       
-      {post.data.heroImage && (
-        <img src={post.data.heroImage} alt="" class="cover-image" />
+      {coverImageUrl && (
+        <div class="cover-image-container">
+          <img src={coverImageUrl} alt={post.data.title} class="cover-image" />
+        </div>
       )}
-      <div class="prose-header">
-        <time datetime={post.data.pubDate.toISOString()} class="post-date">
-          {
-            post.data.pubDate.toLocaleDateString('en-us', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })
-          }
-        </time>
+      
+      <header class="prose-header">
+        <div class="post-meta">
+          <time datetime={post.data.pubDate.toISOString()} class="post-date">
+            {
+              post.data.pubDate.toLocaleDateString('en-us', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
+            }
+          </time>
+          <span class="meta-dot">•</span>
+          <span class="reading-time">{readingTime} min read</span>
+        </div>
+        
         <h1>{post.data.title}</h1>
+        
+        {tags.length > 0 && (
+          <div class="post-tags">
+            {tags.map((tag: string) => (
+              <span class="tag">#{tag}</span>
+            ))}
+          </div>
+        )}
         <hr />
-      </div>
+      </header>
+      
       <div class="content-body">
         <Content />
       </div>
+
+      <!-- AlgoMaster-style interactive & sharing sections -->
+      <ShareButtons title={post.data.title} url={fullPostUrl} />
+      <AuthorBio />
+      <PostNavigation prevPost={prevPost} nextPost={nextPost} />
     </article>
 
     {headings.length > 0 && (
       <aside class="toc-sidebar hidden-mobile">
         <div class="toc-sticky">
-          <h4>Table of Contents</h4>
+          <div class="toc-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            <h4>On this page</h4>
+          </div>
           <ul class="toc-list">
             {headings.map((h: any) => (
               <li class={`toc-level-${h.depth}`}>
@@ -73,75 +137,140 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
 <style>
   .post-layout {
     display: flex;
-    gap: 4rem; /* Increased gap slightly */
+    gap: 4.5rem;
     position: relative;
     align-items: flex-start;
+  }
+  @media (min-width: 1400px) {
+    .post-layout {
+      gap: 5.5rem;
+    }
   }
   .prose {
     flex: 1;
     min-width: 0;
+    max-width: 58rem;
   }
-  .back-link {
-    display: inline-block;
-    margin-bottom: 1.5rem;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: color 0.2s;
-    font-weight: 500;
-  }
-  .back-link:hover {
-    color: var(--accent);
+  .cover-image-container {
+    width: 100%;
+    height: 380px;
+    max-height: 420px;
+    background: #111216;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   }
   .cover-image {
-    width: 100%;
-    aspect-ratio: 16/9;
-    object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    border: 1px solid var(--border);
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 0;
+    border: none;
+    display: block;
+  }
+  @media (max-width: 768px) {
+    .cover-image-container {
+      height: 250px;
+      padding: 0.5rem;
+    }
   }
   .prose-header {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
   }
   .prose-header h1 {
     margin-top: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 3rem;
+    margin-bottom: 1.25rem;
+    font-size: 3.2rem;
+    line-height: 1.15;
+  }
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
   }
   .post-date {
     font-family: monospace;
+    font-size: 0.9rem;
     color: var(--accent);
+  }
+  .meta-dot {
+    color: var(--border);
+    font-size: 0.8rem;
+  }
+  .reading-time {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+  }
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .tag {
+    font-size: 0.8rem;
+    font-family: monospace;
+    color: var(--muted-foreground);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    transition: all 0.2s;
+  }
+  .tag:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   /* TOC Sidebar */
   .toc-sidebar {
-    width: 250px;
+    width: 300px;
     flex-shrink: 0;
-    /* Proper sticky config */
     align-self: flex-start;
     position: sticky;
-    top: 6rem;
-    max-height: calc(100vh - 8rem);
-    overflow-y: auto;
-  }
-  
-  /* Hide scrollbar for clean TOC look */
-  .toc-sidebar::-webkit-scrollbar {
-    display: none;
+    top: 5.5rem;
   }
   
   .toc-sticky {
     background: var(--surface);
-    padding: 1.5rem;
+    padding: 1.25rem 1.25rem 1.25rem 1.5rem;
     border-radius: 12px;
     border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 7rem);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   }
-  .toc-sticky h4 {
-    margin-top: 0;
-    margin-bottom: 1rem;
+  .toc-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--muted-foreground);
+  }
+  .toc-header h4 {
+    margin: 0;
     font-family: var(--font-body);
+    font-size: 0.82rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--foreground);
   }
   .toc-list {
     list-style: none;
@@ -149,21 +278,36 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.55rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .toc-list::-webkit-scrollbar {
+    width: 4px;
+  }
+  .toc-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .toc-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  .toc-list::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
   }
   .toc-list a {
     text-decoration: none;
     color: var(--muted-foreground);
-    font-size: 0.9rem;
+    font-size: 0.86rem;
     transition: color 0.2s;
     display: block;
-    line-height: 1.4;
+    line-height: 1.45;
   }
   .toc-list a:hover, .toc-list a.active {
     color: var(--accent);
-  }
-  .toc-list a.active {
-    /* Removed font-weight to prevent layout shift that caused 2-line breaks */
   }
   .toc-list li {
     position: relative;
@@ -171,11 +315,11 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
   .toc-list a.active::before {
     content: '→';
     position: absolute;
-    left: -1.2rem;
+    left: -1.15rem;
     color: var(--accent);
   }
-  .toc-level-3 { padding-left: 1rem; font-size: 0.85rem; }
-  .toc-level-4 { padding-left: 2rem; }
+  .toc-level-3 { padding-left: 0.85rem; font-size: 0.82rem; }
+  .toc-level-4 { padding-left: 1.5rem; }
   
   /* Scroll to top FAB */
   .scroll-to-top {
@@ -211,8 +355,9 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
     color: var(--accent);
   }
 
-  @media(max-width: 900px) {
+  @media(max-width: 960px) {
     .hidden-mobile { display: none; }
+    .post-layout { gap: 0; }
     .scroll-to-top {
       bottom: 1rem;
       right: 1rem;
@@ -236,46 +381,77 @@ const backUrl = base.endsWith('/') ? base : `${base}/`;
     });
   }
 
-  // Improved TOC Scrollspy
+  // Heading Anchors
+  function initHeadingAnchors() {
+    const headings = document.querySelectorAll('.content-body h2, .content-body h3, .content-body h4');
+    headings.forEach((heading) => {
+      if (heading.querySelector('.heading-anchor')) return;
+      if (!heading.id) return;
+      
+      const anchor = document.createElement('a');
+      anchor.className = 'heading-anchor';
+      anchor.href = `#${heading.id}`;
+      anchor.setAttribute('aria-label', `Anchor link for ${heading.textContent}`);
+      anchor.innerHTML = '#';
+      
+      anchor.addEventListener('click', async (e) => {
+        try {
+          const url = new URL(window.location.href);
+          url.hash = heading.id;
+          await navigator.clipboard.writeText(url.toString());
+        } catch {}
+      });
+
+      heading.appendChild(anchor);
+    });
+  }
+  initHeadingAnchors();
+
+  // TOC Scrollspy & Smooth auto-scroll to keep active link in view
   function updateTOC() {
+    const tocList = document.querySelector('.toc-list');
     const tocLinks = document.querySelectorAll('.toc-list a');
     const headings = Array.from(document.querySelectorAll('.content-body h2, .content-body h3, .content-body h4'));
     
-    if (headings.length === 0) return;
+    if (headings.length === 0 || !tocList) return;
 
-    // Check if user is at the absolute bottom of the page to highlight the last item (e.g. Conclusion)
-    const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 50);
+    const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60);
     
-    if (isAtBottom) {
-      tocLinks.forEach(link => link.classList.remove('active'));
-      const lastHeading = headings[headings.length - 1];
-      const activeLink = document.querySelector(`.toc-list a[href="#${lastHeading.id}"]`);
-      if (activeLink) activeLink.classList.add('active');
-      return;
-    }
-
-    // Otherwise, find the heading closest to the top of the screen
     let currentHeading = headings[0];
-    for (let i = 0; i < headings.length; i++) {
-      const rect = headings[i].getBoundingClientRect();
-      // 150px offset so it highlights just as it reaches the top third of the screen
-      if (rect.top <= 150) {
-        currentHeading = headings[i];
-      } else {
-        break;
+    if (isAtBottom) {
+      currentHeading = headings[headings.length - 1];
+    } else {
+      for (let i = 0; i < headings.length; i++) {
+        const rect = headings[i].getBoundingClientRect();
+        if (rect.top <= 160) {
+          currentHeading = headings[i];
+        } else {
+          break;
+        }
       }
     }
 
     if (currentHeading) {
-      tocLinks.forEach(link => link.classList.remove('active'));
       const activeLink = document.querySelector(`.toc-list a[href="#${currentHeading.id}"]`);
-      if (activeLink) activeLink.classList.add('active');
+      if (activeLink && !activeLink.classList.contains('active')) {
+        tocLinks.forEach(link => link.classList.remove('active'));
+        activeLink.classList.add('active');
+
+        // Automatically scroll the active link into view inside the TOC container
+        activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
     }
   }
 
-  // Use passive listener for better scroll performance
+  // Handle direct click on TOC links
+  document.querySelectorAll('.toc-list a').forEach((link) => {
+    link.addEventListener('click', () => {
+      document.querySelectorAll('.toc-list a').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+  });
+
   window.addEventListener('scroll', updateTOC, { passive: true });
-  
-  // Initial check on page load
   setTimeout(updateTOC, 100);
 </script>

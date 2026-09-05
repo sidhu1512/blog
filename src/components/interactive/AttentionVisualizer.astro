@@ -1,0 +1,483 @@
+---
+/**
+ * Interactive Attention & Token Visualizer
+ * Companion interactive widget for the Transformer article.
+ * Built with Vanilla HTML/CSS/JS (zero runtime framework overhead).
+ */
+---
+
+<div class="transformer-widget liquid-glass" id="transformer-explorer">
+  <div class="widget-header">
+    <div class="widget-title">
+      <span class="pulse-indicator"></span>
+      Interactive Transformer Explorer: <code>"I love cats"</code>
+    </div>
+    <div class="widget-tabs">
+      <button class="tab-btn active" data-tab="tokens">1. Token & Embeddings</button>
+      <button class="tab-btn" data-tab="attention">2. Attention Matrix</button>
+    </div>
+  </div>
+
+  <!-- Tab 1: Tokenization & Embedding Inspector -->
+  <div class="tab-pane active" id="pane-tokens">
+    <div class="instruction">Click a token below to inspect its Token ID, vector representation, and position:</div>
+    <div class="tokens-row">
+      <button class="token-btn active" data-token="0">
+        <span class="token-str">"I"</span>
+        <span class="token-idx">pos: 0</span>
+      </button>
+      <button class="token-btn" data-token="1">
+        <span class="token-str">"love"</span>
+        <span class="token-idx">pos: 1</span>
+      </button>
+      <button class="token-btn" data-token="2">
+        <span class="token-str">"cats"</span>
+        <span class="token-idx">pos: 2</span>
+      </button>
+    </div>
+
+    <div class="inspector-card">
+      <div class="card-metric">
+        <span class="metric-label">Token ID</span>
+        <span class="metric-value" id="disp-id">12</span>
+      </div>
+      <div class="card-metric">
+        <span class="metric-label">Position Encoding</span>
+        <span class="metric-value" id="disp-pos">p₀ = [sin(0), cos(0), ...]</span>
+      </div>
+      <div class="card-metric full-width">
+        <span class="metric-label">Learned Embedding Vector (4-dim demo)</span>
+        <div class="vector-display" id="disp-vec">
+          <span class="vec-num">[0.20,</span>
+          <span class="vec-num">0.70,</span>
+          <span class="vec-num">0.10,</span>
+          <span class="vec-num">0.40]</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Attention Matrix & Masking -->
+  <div class="tab-pane" id="pane-attention">
+    <div class="matrix-controls">
+      <span class="instruction">Select attention mode:</span>
+      <div class="mode-toggles">
+        <button class="mode-btn active" id="mode-encoder">Encoder (Full Attention)</button>
+        <button class="mode-btn" id="mode-decoder">Decoder (Causal Masked)</button>
+      </div>
+    </div>
+
+    <div class="matrix-wrapper">
+      <table class="attention-table">
+        <thead>
+          <tr>
+            <th class="corner">Q \ K</th>
+            <th>"I"</th>
+            <th>"love"</th>
+            <th>"cats"</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-hdr">"I"</td>
+            <td class="cell cell-high" id="cell-0-0">0.82</td>
+            <td class="cell cell-low" id="cell-0-1">0.12</td>
+            <td class="cell cell-low" id="cell-0-2">0.06</td>
+          </tr>
+          <tr>
+            <td class="row-hdr">"love"</td>
+            <td class="cell cell-med" id="cell-1-0">0.25</td>
+            <td class="cell cell-high" id="cell-1-1">0.60</td>
+            <td class="cell cell-low" id="cell-1-2">0.15</td>
+          </tr>
+          <tr>
+            <td class="row-hdr">"cats"</td>
+            <td class="cell cell-low" id="cell-2-0">0.10</td>
+            <td class="cell cell-high" id="cell-2-1">0.70</td>
+            <td class="cell cell-med" id="cell-2-2">0.20</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="matrix-note" id="matrix-explanation">
+        <strong>Encoder Self-Attention:</strong> Every token attends freely to all other tokens to build rich bidirectional context.
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .transformer-widget {
+    margin: 2.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #0f1117;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    background: #161b22;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .widget-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .pulse-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    display: inline-block;
+  }
+
+  .widget-tabs {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    color: var(--foreground);
+    border-color: #52525b;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .tab-pane {
+    display: none;
+    padding: 1.5rem;
+  }
+
+  .tab-pane.active {
+    display: block;
+  }
+
+  .instruction {
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+    margin-bottom: 1rem;
+  }
+
+  .tokens-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .token-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.6rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .token-btn:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .token-btn.active {
+    background: rgba(234, 179, 8, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
+  }
+
+  .token-str {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .token-idx {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+  }
+
+  .inspector-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: #14171f;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+  }
+
+  .card-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .card-metric.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+  }
+
+  .metric-value {
+    font-family: monospace;
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .vector-display {
+    display: flex;
+    gap: 0.5rem;
+    font-family: monospace;
+    font-size: 0.95rem;
+    background: #090a0f;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    color: #60a5fa;
+  }
+
+  /* Attention Matrix Table */
+  .matrix-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .mode-toggles {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .mode-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .matrix-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .attention-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .attention-table th,
+  .attention-table td {
+    padding: 0.65rem;
+    border: 1px solid var(--border);
+  }
+
+  .attention-table th {
+    background: #161b22;
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .row-hdr {
+    background: #161b22;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .cell {
+    transition: all 0.3s ease;
+    font-weight: 600;
+  }
+
+  .cell-high {
+    background: rgba(234, 179, 8, 0.28);
+    color: #fef08a;
+  }
+
+  .cell-med {
+    background: rgba(234, 179, 8, 0.12);
+    color: #fef9c3;
+  }
+
+  .cell-low {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted-foreground);
+  }
+
+  .cell-masked {
+    background: #1e1515 !important;
+    color: #ef4444 !important;
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+
+  .matrix-note {
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+    background: #14171f;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 600px) {
+    .widget-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<script>
+  function initWidget() {
+    const root = document.getElementById('transformer-explorer');
+    if (!root) return;
+
+    // Tab switching
+    const tabBtns = root.querySelectorAll('.tab-btn');
+    const panes = root.querySelectorAll('.tab-pane');
+
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        tabBtns.forEach((b) => b.classList.remove('active'));
+        panes.forEach((p) => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        const activePane = root.querySelector(`#pane-${tab}`);
+        if (activePane) activePane.classList.add('active');
+      });
+    });
+
+    // Token Inspector data
+    const tokenData = [
+      { id: '12', pos: 'p₀ = [sin(0), cos(0), ...]', vec: '[0.20, 0.70, 0.10, 0.40]' },
+      { id: '45', pos: 'p₁ = [sin(1), cos(1), ...]', vec: '[0.80, 0.10, 0.60, 0.30]' },
+      { id: '87', pos: 'p₂ = [sin(2), cos(2), ...]', vec: '[0.50, 0.90, 0.20, 0.70]' },
+    ];
+
+    const tokenBtns = root.querySelectorAll('.token-btn');
+    const dispId = root.querySelector('#disp-id');
+    const dispPos = root.querySelector('#disp-pos');
+    const dispVec = root.querySelector('#disp-vec');
+
+    tokenBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        tokenBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const idx = parseInt(btn.getAttribute('data-token') || '0', 10);
+        const data = tokenData[idx];
+
+        if (dispId) dispId.textContent = data.id;
+        if (dispPos) dispPos.textContent = data.pos;
+        if (dispVec) {
+          dispVec.innerHTML = data.vec
+            .split(',')
+            .map((num, i, arr) => `<span class="vec-num">${num}${i < arr.length - 1 ? ',' : ''}</span>`)
+            .join(' ');
+        }
+      });
+    });
+
+    // Mode Toggle (Encoder vs Decoder Masking)
+    const btnEncoder = root.querySelector('#mode-encoder');
+    const btnDecoder = root.querySelector('#mode-decoder');
+    const note = root.querySelector('#matrix-explanation');
+
+    const c01 = root.querySelector('#cell-0-1');
+    const c02 = root.querySelector('#cell-0-2');
+    const c12 = root.querySelector('#cell-1-2');
+
+    function setEncoderMode() {
+      if (btnEncoder) btnEncoder.classList.add('active');
+      if (btnDecoder) btnDecoder.classList.remove('active');
+
+      if (c01) { c01.textContent = '0.12'; c01.className = 'cell cell-low'; }
+      if (c02) { c02.textContent = '0.06'; c02.className = 'cell cell-low'; }
+      if (c12) { c12.textContent = '0.15'; c12.className = 'cell cell-low'; }
+
+      if (note) {
+        note.innerHTML = '<strong>Encoder Self-Attention:</strong> Every token attends freely to all other tokens to build rich bidirectional context.';
+      }
+    }
+
+    function setDecoderMode() {
+      if (btnDecoder) btnDecoder.classList.add('active');
+      if (btnEncoder) btnEncoder.classList.remove('active');
+
+      if (c01) { c01.textContent = '-∞ (0.00)'; c01.className = 'cell cell-masked'; }
+      if (c02) { c02.textContent = '-∞ (0.00)'; c02.className = 'cell cell-masked'; }
+      if (c12) { c12.textContent = '-∞ (0.00)'; c12.className = 'cell cell-masked'; }
+
+      if (note) {
+        note.innerHTML = '<strong>Decoder Causal Masking:</strong> Upper-triangle future positions are masked out with -∞ before softmax, preventing the model from cheating by looking ahead.';
+      }
+    }
+
+    if (btnEncoder) btnEncoder.addEventListener('click', setEncoderMode);
+    if (btnDecoder) btnDecoder.addEventListener('click', setDecoderMode);
+  }
+
+  initWidget();
+  document.addEventListener('astro:page-load', initWidget);
+</script>

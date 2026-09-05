@@ -1,0 +1,93 @@
+---
+/**
+ * CopyButton — Enhances all <pre> code blocks on the page with:
+ * 1. A wrapper around the code block
+ * 2. An editor-style header bar with language badge on the left
+ * 3. A "Copy" button on the right with animated checkmark and feedback
+ */
+---
+
+<script>
+  function initCodeBlocks() {
+    document.querySelectorAll('.content-body pre').forEach((pre) => {
+      // Avoid double wrapping
+      if (pre.closest('.code-wrapper')) return;
+
+      const code = pre.querySelector('code');
+      let lang = '';
+      if (code) {
+        const classes = Array.from(code.classList);
+        const langClass = classes.find((c) => c.startsWith('language-'));
+        if (langClass) {
+          lang = langClass.replace('language-', '');
+        }
+      }
+
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-wrapper';
+
+      // Create header bar
+      const header = document.createElement('div');
+      header.className = 'code-header';
+
+      // Language label
+      const langLabel = document.createElement('span');
+      langLabel.className = 'code-lang';
+      langLabel.textContent = lang || 'code';
+      header.appendChild(langLabel);
+
+      // Copy button
+      const btn = document.createElement('button');
+      btn.className = 'code-copy-btn';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      btn.innerHTML = `
+        <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="copy-text">Copy</span>
+      `;
+
+      btn.addEventListener('click', async () => {
+        const text = code ? code.innerText : pre.innerText;
+        try {
+          await navigator.clipboard.writeText(text || '');
+          const copyIcon = btn.querySelector('.copy-icon') as HTMLElement | null;
+          const checkIcon = btn.querySelector('.check-icon') as HTMLElement | null;
+          const copyText = btn.querySelector('.copy-text') as HTMLElement | null;
+          
+          if (copyIcon) copyIcon.style.display = 'none';
+          if (checkIcon) checkIcon.style.display = 'inline';
+          if (copyText) copyText.textContent = 'Copied!';
+          btn.classList.add('copied');
+
+          setTimeout(() => {
+            if (copyIcon) copyIcon.style.display = 'inline';
+            if (checkIcon) checkIcon.style.display = 'none';
+            if (copyText) copyText.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy code: ', err);
+        }
+      });
+
+      header.appendChild(btn);
+
+      // Replace pre with wrapper containing header and pre
+      if (pre.parentNode) {
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+      }
+    });
+  }
+
+  // Execute on initial load and view transitions
+  initCodeBlocks();
+  document.addEventListener('astro:page-load', initCodeBlocks);
+</script>

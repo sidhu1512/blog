@@ -7,6 +7,7 @@ const currentYear = new Date().getFullYear();
     <div class="socials">
       <a href="https://github.com/sidhu1512" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="https://www.linkedin.com/in/siddharth-bhadu-71a483193" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="/blog/rss.xml" target="_blank">RSS</a>
     </div>
   </div>
 </footer>
@@ -18,14 +19,19 @@ const currentYear = new Date().getFullYear();
     margin-top: 4rem;
   }
   .footer-container {
-    max-width: 48rem;
+    max-width: 86rem;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: var(--muted-foreground);
     font-size: 0.85rem;
+  }
+  @media (min-width: 1280px) {
+    .footer-container {
+      padding: 0 3rem;
+    }
   }
   .socials {
     display: flex;
@@ -38,4 +44,4 @@ const currentYear = new Date().getFullYear();
   .socials a:hover {
     color: var(--accent);
   }
-</style
+</style>

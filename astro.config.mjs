@@ -5,10 +5,19 @@ import mdx from '@astrojs/mdx';
 
 import sitemap from '@astrojs/sitemap';
 
+import { remarkCallouts } from './src/plugins/remark-callouts.mjs';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://sidhu1512.github.io', 
   base: '/blog',
   integrations: [mdx(), sitemap()],
-  devToolbar: { enabled: false }
+  devToolbar: { enabled: false },
+  markdown: {
+    remarkPlugins: [remarkCallouts],
+    shikiConfig: {
+      theme: 'github-dark',
+      wrap: true,
+    },
+  },
 });

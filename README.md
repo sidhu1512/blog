@@ -1,107 +1,130 @@
-# 🚀 Siddharth's Engineering Blog: Operations Manual
+# Siddharth's Engineering Blog
 
-Welcome to your staff-level engineering blog! This site is built on **Astro** for extreme performance. By default, it ships **zero-JavaScript** (saving massive amounts of bandwidth) while fully supporting dynamic **MDX** (Markdown + JSX) so you can embed custom interactive components.
+A high-performance, dark-themed personal engineering blog designed for deep-dive technical articles, systems explorations, and machine learning notes.
 
-This document serves as your complete guide to managing, writing, and deploying content on your blog.
-
----
-
-## 📝 1. Writing a New Blog Post
-
-All of your blog posts live inside the `src/content/blog/` directory.
-
-### Step 1: Create the File
-Create a new file in that directory.
-- Use `.md` for a standard Markdown post.
-- Use `.mdx` if you plan to embed interactive UI components.
-
-### Step 2: The Frontmatter
-At the very top of your file, you must include the metadata (Frontmatter) block. This defines the title, SEO description, date, and cover image.
-
-```mdx
----
-title: "Scaling Distributed Systems: Patterns and Anti-Patterns"
-description: "A deep dive into load balancing, backpressure, and the architectural patterns required to survive traffic spikes."
-pubDate: "2026-04-28"
-heroImage: "/images/cover_architecture.png"
----
-```
-*Note: If you omit `heroImage`, the system will automatically display a premium, dark-mode abstract geometric fallback pattern on the blog cards.*
-
-### Step 3: Writing Content
-You can write using standard Markdown syntax below the frontmatter:
-- Use `#` for the main title (though the template handles this automatically, so start with `##`).
-- Use `##` for major sections.
-- Use `###` for sub-sections.
-
-> **💡 Table of Contents Automagic**: Every time you write a `##` or `###` heading, it is **automatically extracted** and placed into the sticky right-hand Table of Contents sidebar. Furthermore, the built-in **Scrollspy** script will track the reader's scroll position and highlight the active heading in the TOC!
+Built with **[Astro](https://astro.build/)** for zero-runtime JavaScript overhead by default, paired with **MDX** for embedded interactive components and rich diagrams.
 
 ---
 
-## 🖼️ 2. Images & Media
+## ⚡ Overview & Features
 
-To keep things organized and ensure fast loading times:
-1. Place all your raw images, gifs, and diagrams into the `public/images/` folder.
-2. Inside your markdown file, reference them using absolute paths starting from the root:
+The site incorporates modern technical reading UX patterns inspired by platforms like **AlgoMaster.io**, **Stripe Engineering**, and **GitHub**:
 
-```markdown
-![My architecture diagram](/images/my-diagram.jpg)
-```
+- **Aesthetic**: Deep dark palette (`#0a0a0a`), warm gold accents (`#eab308`), paired with `Instrument Serif` headings and clean `Inter` body typography.
+- **Interactive Code Blocks**: Syntax highlighting via Shiki (`github-dark`), automatic uppercase language badges, and one-click clipboard copy with feedback animation.
+- **Callout & Alert Boxes**: Native GitHub-style blockquote alerts (`[!NOTE]`, `[!TIP]`, `[!WARNING]`, `[!IMPORTANT]`) rendered with distinct accents and border styling.
+- **Reading Experience**:
+  - Sticky Table of Contents with real-time scrollspy active state tracking.
+  - Smooth reading progress indicator bar.
+  - Clickable heading anchor links (`#`) with instant link copying.
+  - Calculated reading time on every post and listing card.
+  - Responsive Previous / Next article navigation cards.
+  - Social sharing bar (Twitter/X, LinkedIn, Copy Link).
+  - Clean breadcrumb trails (`Portfolio / Blog / Article`).
+- **SEO & Syndication**: Complete OpenGraph and Twitter card metadata, dynamic `sitemap.xml`, and full RSS feed at `/blog/rss.xml`.
+- **Zero-Bloat Performance**: Pure static HTML generation with vanilla JavaScript widgets where needed.
 
 ---
 
-## ⚡ 3. Advanced Interactive Components (MDX)
+## 🏗️ Architecture
 
-Your blog is configured to handle complex, interactive technical articles. Instead of static images, you can build living widgets.
-
-### How to embed a component:
-1. Build your component inside `src/components/interactive/`. Use standard HTML/CSS and Vanilla JS inside a `<script>` tag to keep it blazing fast.
-2. At the top of your `.mdx` file (just below the frontmatter), import the component:
-
-```mdx
-import SystemDiagram from '../../components/interactive/SystemDiagram.astro';
-```
-
-3. Render it anywhere in your text like an HTML tag:
-
-```mdx
-Here is a live simulation of a traffic spike:
-<SystemDiagram />
+```text
+blog/
+├── public/
+│   ├── favicon.svg          # Custom monogram vector favicon
+│   └── images/               # Article hero covers and technical diagrams
+├── src/
+│   ├── components/
+│   │   ├── AuthorBio.astro      # Author profile card
+│   │   ├── CopyButton.astro     # Code block copy button & language tag
+│   │   ├── Footer.astro         # Site footer with RSS and social links
+│   │   ├── Header.astro         # Sticky blurred header with nav links
+│   │   ├── PostNavigation.astro # Previous / Next post cards
+│   │   ├── ProgressBar.astro    # Reading progress bar
+│   │   ├── SEO.astro            # Meta and OG tags
+│   │   ├── ShareButtons.astro   # Twitter, LinkedIn, copy link bar
+│   │   └── interactive/         # Custom interactive widgets
+│   ├── content/
+│   │   └── blog/                # Markdown and MDX articles
+│   ├── layouts/
+│   │   └── Layout.astro         # Base HTML document shell
+│   ├── pages/
+│   │   ├── [...page].astro      # Paginated blog index grid
+│   │   ├── [id].astro           # Dynamic article reader page
+│   │   ├── about.astro          # Author biography and projects
+│   │   └── rss.xml.js           # Automated RSS feed endpoint
+│   ├── plugins/
+│   │   └── remark-callouts.mjs  # Remark plugin for GitHub-style callouts
+│   └── styles/
+│       └── global.css           # Global typography, tables, and themes
+├── astro.config.mjs             # Astro integrations & Shiki configuration
+└── package.json
 ```
 
-**Check out your existing components for inspiration:**
-- `BandwidthChart.astro` (Animated bar charts)
-- `MemoryWidget.astro` (Real-time tracking gauges)
-- `HardwareToggle.astro` (Interactive specification tables)
-- `SystemDiagram.astro` (Live microservice traffic simulation)
+---
+
+## ✍️ Writing Articles
+
+Articles live in `src/content/blog/` as either standard `.md` or interactive `.mdx` files.
+
+### Frontmatter Template
+
+```yaml
+---
+title: "Transformers: From Understanding Language to Generating Text"
+description: "A comprehensive, intuitive deep dive into the Transformer architecture—from tokenization and self-attention to causal masking and cross-attention."
+pubDate: "2026-05-04"
+heroImage: "/images/encoder-decoder.png"
+tags: ["ai", "deep-learning", "transformers", "nlp"]
+---
+```
+
+### Supported Markdown Extras
+
+- **Alerts**:
+  ```markdown
+  > [!NOTE]
+  > Key intuition or background context.
+
+  > [!TIP]
+  > Practical implementation tip.
+
+  > [!WARNING]
+  > Common pitfall or performance warning.
+
+  > [!IMPORTANT]
+  > Critical architectural takeaway.
+  ```
+
+- **Interactive Components (`.mdx`)**:
+  ```jsx
+  import AttentionMatrix from '../../components/interactive/AttentionMatrix.astro';
+
+  <AttentionMatrix />
+  ```
 
 ---
 
-## 💻 4. Local Development
+## 🛠️ Local Development
 
-When you want to write a new post or test a new component, run the local development server:
+Ensure **Node.js >= 22.12.0** is installed:
 
 ```bash
+# Install dependencies
+npm install
+
+# Start local dev server
 npm run dev
+
+# Build static production bundle to /dist
+npm run build
+
+# Preview production build locally
+npm run preview
 ```
-Open your browser to `http://localhost:4321/blog` to see your changes instantly.
 
 ---
 
-## 🚀 5. Deployment & CI/CD
+## 🚀 Deployment
 
-Your blog is fully hooked up to a continuous deployment pipeline.
-
-You **never** have to build or deploy manually. The repository is configured with a GitHub Actions workflow (`.github/workflows/deploy.yml`). 
-
-Whenever you finish writing a blog post:
-1. Commit your changes.
-2. Push to the `main` branch.
-
-```bash
-git add .
-git commit -m "Wrote new blog post on low-level computing"
-git push origin main
-```
-
-Within 60 seconds, GitHub Actions will compile your markdown into static HTML, generate your `sitemap.xml` for Google SEO, and deploy the live site to: **https://sidhu1512.github.io/blog**
+The repository uses GitHub Actions (`.github/workflows/deploy.yml`) to automatically compile and deploy static assets to GitHub Pages upon pushing to `main`.

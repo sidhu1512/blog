@@ -1,0 +1,76 @@
+---
+/**
+ * AuthorBio — Author card shown at the bottom of each blog post.
+ * Hardcoded for single-author blog.
+ */
+---
+
+<div class="author-bio">
+  <div class="author-avatar">S</div>
+  <div class="author-info">
+    <div class="author-name">Siddharth Bhadu</div>
+    <p class="author-desc">Software Engineer • Java, Spring Boot, low-level systems. Building things that scale and writing about what I learn.</p>
+    <div class="author-links">
+      <a href="https://github.com/sidhu1512" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://www.linkedin.com/in/siddharth-bhadu-71a483193" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://sidhu1512.github.io/" target="_blank" rel="noopener noreferrer">Portfolio</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .author-bio {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-top: 2rem;
+  }
+  .author-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #f59e0b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: #0a0a0a;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .author-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .author-name {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--foreground);
+    margin-bottom: 0.25rem;
+  }
+  .author-desc {
+    font-size: 0.9rem;
+    color: var(--muted-foreground);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+  .author-links {
+    display: flex;
+    gap: 1rem;
+  }
+  .author-links a {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .author-links a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+</style>

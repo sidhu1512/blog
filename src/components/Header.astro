@@ -11,7 +11,7 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
       Siddharth.
     </a>
     <nav>
-      <a href="/" class="nav-btn">Portfolio</a>
+      <a href="https://sidhu1512.github.io/" class="nav-btn">Portfolio</a>
       <a href={base} class={`nav-btn ${normalizedPath === normalizedBase ? 'active' : ''}`}>Blog</a>
       <a href={`${normalizedBase}/about`} class={`nav-btn ${normalizedPath === `${normalizedBase}/about` ? 'active' : ''}`}>About</a>
     </nav>
@@ -30,12 +30,17 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
     z-index: 100;
   }
   .header-container {
-    max-width: 68rem;
+    max-width: 86rem;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+  @media (min-width: 1280px) {
+    .header-container {
+      padding: 0 3rem;
+    }
   }
   .logo {
     text-decoration: none;
