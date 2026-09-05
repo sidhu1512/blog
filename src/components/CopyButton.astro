@@ -14,8 +14,8 @@
       if (pre.closest('.code-wrapper')) return;
 
       const code = pre.querySelector('code');
-      let lang = '';
-      if (code) {
+      let lang = pre.getAttribute('data-language') || '';
+      if (!lang && code) {
         const classes = Array.from(code.classList);
         const langClass = classes.find((c) => c.startsWith('language-'));
         if (langClass) {

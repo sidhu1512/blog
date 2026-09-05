@@ -16,7 +16,10 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkCallouts],
     shikiConfig: {
-      theme: 'github-dark',
+      themes: {
+        light: 'github-light',
+        dark: 'github-dark',
+      },
       wrap: true,
     },
   },

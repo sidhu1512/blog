@@ -110,9 +110,9 @@
     margin: 2.5rem 0;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: #0f1117;
+    background: var(--card-bg);
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-card);
   }
 
   .widget-header {
@@ -122,7 +122,7 @@
     flex-wrap: wrap;
     gap: 0.75rem;
     padding: 0.85rem 1.25rem;
-    background: #161b22;
+    background: var(--surface);
     border-bottom: 1px solid var(--border);
   }
 
@@ -236,8 +236,8 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     padding: 1rem 1.25rem;
-    background: #14171f;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 8px;
   }
 
@@ -270,11 +270,11 @@
     gap: 0.5rem;
     font-family: monospace;
     font-size: 0.95rem;
-    background: #090a0f;
+    background: var(--background);
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
     border: 1px solid var(--border);
-    color: #60a5fa;
+    color: #3b82f6;
   }
 
   /* Attention Matrix Table */
@@ -332,13 +332,13 @@
   }
 
   .attention-table th {
-    background: #161b22;
+    background: var(--surface);
     color: var(--foreground);
     font-weight: 600;
   }
 
   .row-hdr {
-    background: #161b22;
+    background: var(--surface);
     font-weight: 600;
     color: var(--foreground);
   }
@@ -349,31 +349,41 @@
   }
 
   .cell-high {
-    background: rgba(234, 179, 8, 0.28);
+    background: rgba(234, 179, 8, 0.25);
+    color: #b45309;
+  }
+  html[data-theme="dark"] .cell-high {
     color: #fef08a;
   }
 
   .cell-med {
     background: rgba(234, 179, 8, 0.12);
+    color: #d97706;
+  }
+  html[data-theme="dark"] .cell-med {
     color: #fef9c3;
   }
 
   .cell-low {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(125, 125, 125, 0.05);
     color: var(--muted-foreground);
   }
 
   .cell-masked {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #dc2626 !important;
+    text-decoration: line-through;
+    opacity: 0.65;
+  }
+  html[data-theme="dark"] .cell-masked {
     background: #1e1515 !important;
     color: #ef4444 !important;
-    text-decoration: line-through;
-    opacity: 0.55;
   }
 
   .matrix-note {
     font-size: 0.85rem;
     color: var(--muted-foreground);
-    background: #14171f;
+    background: var(--surface);
     padding: 0.75rem 1rem;
     border-radius: 6px;
     border-left: 3px solid var(--accent);

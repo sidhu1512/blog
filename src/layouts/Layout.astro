@@ -3,6 +3,7 @@ import '../styles/global.css';
 import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ImageLightbox from '../components/ImageLightbox.astro';
 
 export interface Props {
   title: string;
@@ -42,6 +43,25 @@ const rssUrl = `${normalizedBase}rss.xml`;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- Theme initialization script (runs immediately to prevent FOUC) -->
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.setAttribute('data-theme', stored);
+            return;
+          }
+          const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+          const initialTheme = prefersLight ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', initialTheme);
+        } catch {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+
     <link rel="icon" type="image/svg+xml" href={faviconUrl} />
     <meta name="generator" content={Astro.generator} />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -63,5 +83,6 @@ const rssUrl = `${normalizedBase}rss.xml`;
       <slot />
     </main>
     <Footer />
+    <ImageLightbox />
   </body>
 </html>
