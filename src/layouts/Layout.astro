@@ -168,15 +168,17 @@ const rssUrl = `${normalizedBase}rss.xml`;
       document.addEventListener(
         'click',
         (e) => {
-          const tagEl = (e.target as HTMLElement).closest('[data-tag-link]') as HTMLElement | null;
-          if (!tagEl || !tagEl.dataset.tagLink) return;
-          e.preventDefault();
-          e.stopPropagation();
-          if (astroNavigate) {
-            astroNavigate(tagEl.dataset.tagLink);
-          } else {
-            window.location.assign(tagEl.dataset.tagLink);
-          }
+          try {
+            const tagEl = (e.target as HTMLElement).closest('[data-tag-link]') as HTMLElement | null;
+            if (!tagEl || !tagEl.dataset.tagLink) return;
+            e.preventDefault();
+            e.stopPropagation();
+            if (astroNavigate) {
+              astroNavigate(tagEl.dataset.tagLink);
+            } else {
+              window.location.assign(tagEl.dataset.tagLink);
+            }
+          } catch {}
         },
         true
       );
