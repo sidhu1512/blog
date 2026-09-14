@@ -65,7 +65,8 @@
 <script>
   function initThemeToggle() {
     const toggleBtn = document.getElementById('theme-toggle');
-    if (!toggleBtn) return;
+    if (!toggleBtn || (toggleBtn as any).__themeBound) return;
+    (toggleBtn as any).__themeBound = true;
 
     toggleBtn.addEventListener('click', () => {
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';

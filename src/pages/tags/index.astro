@@ -1,0 +1,109 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const tagCounts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags ?? []) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+
+const tags = [...tagCounts.entries()].sort(
+  (a, b) => b[1] - a[1] || a[0].localeCompare(b[0])
+);
+
+const base = import.meta.env.BASE_URL;
+const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+---
+
+<Layout
+  title="Topics - Siddharth Bhadu"
+  description="Browse all articles by topic: AI, cloud, systems, and more."
+>
+  <div class="hero">
+    <div class="hero-badge">Browse by topic</div>
+    <h1>Topics.</h1>
+    <p class="subtitle">Every article, organized by the subjects it covers.</p>
+  </div>
+
+  <div class="tag-cloud">
+    {
+      tags.map(([tag, count]) => (
+        <a href={`${normalizedBase}tags/${tag}`} class="tag-card liquid-glass">
+          <span class="tag-name">#{tag}</span>
+          <span class="tag-count">
+            {count} {count === 1 ? 'post' : 'posts'}
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</Layout>
+
+<style>
+  .hero {
+    margin-bottom: 3rem;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: var(--accent-muted);
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .hero h1 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 3.5rem;
+  }
+  .subtitle {
+    font-size: 1.2rem;
+    color: var(--muted-foreground);
+    max-width: 38rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .tag-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tag-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+  .tag-name {
+    font-family: monospace;
+    font-size: 1rem;
+    color: var(--foreground);
+  }
+  .tag-card:hover .tag-name {
+    color: var(--accent);
+  }
+  .tag-count {
+    font-size: 0.78rem;
+    font-family: monospace;
+    color: var(--muted-foreground);
+    background: var(--background);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+  }
+</style>

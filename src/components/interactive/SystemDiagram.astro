@@ -46,13 +46,16 @@
 </style>
 
 <script>
-  const btn = document.getElementById('sim-traffic');
-  const srv1 = document.getElementById('srv-1');
-  const srv2 = document.getElementById('srv-2');
-  const srv3 = document.getElementById('srv-3');
-  const arrows = [document.getElementById('arrow-1'), document.getElementById('arrow-2a'), document.getElementById('arrow-2b'), document.getElementById('arrow-2c')];
-  
-  if (btn) {
+  function initSystemDiagram() {
+    const btn = document.getElementById('sim-traffic');
+    if (!btn || (btn as any).__diagramBound) return;
+    (btn as any).__diagramBound = true;
+
+    const srv1 = document.getElementById('srv-1');
+    const srv2 = document.getElementById('srv-2');
+    const srv3 = document.getElementById('srv-3');
+    const arrows = [document.getElementById('arrow-1'), document.getElementById('arrow-2a'), document.getElementById('arrow-2b'), document.getElementById('arrow-2c')];
+
     btn.addEventListener('click', () => {
       btn.disabled = true;
       btn.textContent = 'Traffic Spiking...';
@@ -93,4 +96,7 @@
       }, 300);
     });
   }
+
+  initSystemDiagram();
+  document.addEventListener('astro:page-load', initSystemDiagram);
 </script>

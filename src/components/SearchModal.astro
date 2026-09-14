@@ -1,0 +1,320 @@
+---
+/**
+ * SearchModal — Site-wide search overlay powered by Pagefind.
+ * - Opens with Ctrl+K / Cmd+K or the header search button
+ * - Debounced live results with highlighted snippets
+ * - Keyboard navigation (arrows, Enter, Escape)
+ */
+---
+
+<div id="search-modal" class="search-modal" aria-hidden="true" role="dialog" aria-label="Site search">
+  <div class="search-backdrop" data-search-close></div>
+  <div class="search-panel liquid-glass">
+    <div class="search-input-row">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Search articles..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="search-esc" data-search-close aria-label="Close search">Esc</button>
+    </div>
+    <div id="search-results" class="search-results"></div>
+    <div class="search-footer">
+      <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+      <span><kbd>&crarr;</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12vh 1rem 1rem;
+  }
+  .search-modal.active {
+    display: flex;
+  }
+  .search-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .search-panel {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+  }
+  .search-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .search-icon {
+    color: var(--muted-foreground);
+    flex-shrink: 0;
+  }
+  #search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--foreground);
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+  }
+  #search-input::placeholder {
+    color: var(--muted-foreground);
+  }
+  .search-esc {
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--muted-foreground);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .search-esc:hover {
+    color: var(--foreground);
+    border-color: var(--accent);
+  }
+  .search-results {
+    overflow-y: auto;
+    padding: 0.5rem;
+    min-height: 80px;
+  }
+  .search-results:empty::after {
+    content: 'Type to search the site...';
+    display: block;
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    padding: 1.5rem 0;
+  }
+  .search-result {
+    display: block;
+    text-decoration: none;
+    padding: 0.7rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .search-result:hover,
+  .search-result.selected {
+    background: var(--surface-raised);
+  }
+  .search-result-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--foreground);
+    margin-bottom: 0.2rem;
+  }
+  .search-result.selected .search-result-title {
+    color: var(--accent);
+  }
+  .search-result-excerpt {
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+    line-height: 1.5;
+  }
+  .search-result-excerpt :global(mark) {
+    background: var(--accent-muted);
+    color: var(--accent);
+    border-radius: 3px;
+    padding: 0 0.15em;
+  }
+  .search-meta {
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: 0.85rem;
+    padding: 1.25rem 0;
+  }
+  .search-footer {
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.6rem 1.1rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  .search-footer kbd {
+    margin-right: 0.25rem;
+  }
+</style>
+
+<script>
+  // View-transition-safe: re-binds to the fresh DOM after each swap.
+  // The global Ctrl+K / Esc handler is bound exactly once and resolves the
+  // current modal at event time via a shared opener/closer reference.
+  function initSearch() {
+    const modal = document.getElementById('search-modal');
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    const resultsEl = document.getElementById('search-results');
+    if (!modal || !input || !resultsEl) return;
+    if ((modal as any).__searchBound) return;
+    (modal as any).__searchBound = true;
+
+    let pagefind: any = null;
+    let searchDebounce: ReturnType<typeof setTimeout> | null = null;
+    let selectedIndex = -1;
+
+    async function loadPagefind() {
+      if (pagefind) return pagefind;
+      try {
+        // Constructed at runtime so the bundler does not try to resolve it at build time
+        const pagefindUrl = `${import.meta.env.BASE_URL}pagefind/pagefind.js`;
+        pagefind = await import(/* @vite-ignore */ pagefindUrl);
+        await pagefind.options({ highlightParam: 'pagefind' });
+      } catch {
+        pagefind = null;
+      }
+      return pagefind;
+    }
+
+    function openModal() {
+      modal!.classList.add('active');
+      modal!.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      input!.focus();
+      input!.select();
+    }
+
+    function closeModal() {
+      modal!.classList.remove('active');
+      modal!.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      input!.value = '';
+      resultsEl!.innerHTML = '';
+      selectedIndex = -1;
+    }
+
+    function renderResults(results: any[]) {
+      if (results.length === 0) {
+        resultsEl!.innerHTML =
+          '<div class="search-meta">No results found. Try different keywords.</div>';
+        selectedIndex = -1;
+        return;
+      }
+      resultsEl!.innerHTML = results
+        .map((r, i) => {
+          const url = r.meta?.url ?? r.url ?? '#';
+          const title = r.meta?.title ?? 'Untitled';
+          return `
+            <a class="search-result${i === selectedIndex ? ' selected' : ''}" href="${url}" data-search-result>
+              <div class="search-result-title">${title}</div>
+              <div class="search-result-excerpt">${r.excerpt ?? ''}</div>
+            </a>`;
+        })
+        .join('');
+    }
+
+    async function runSearch(query: string) {
+      const pf = await loadPagefind();
+      if (!pf) {
+        resultsEl!.innerHTML =
+          '<div class="search-meta">Search index not available. Run <code>npm run build</code> to generate it.</div>';
+        return;
+      }
+      const search = await pf.search(query);
+      const results = await Promise.all(
+        (await search.results.slice(0, 8).map((r: any) => r.data()))
+      );
+      renderResults(results);
+    }
+
+    input.addEventListener('input', () => {
+      const query = input!.value.trim();
+      if (searchDebounce) clearTimeout(searchDebounce);
+      if (!query) {
+        resultsEl!.innerHTML = '';
+        selectedIndex = -1;
+        return;
+      }
+      searchDebounce = setTimeout(() => runSearch(query), 120);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      const items = resultsEl!.querySelectorAll('.search-result');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (items.length === 0) return;
+        selectedIndex = (selectedIndex + 1) % items.length;
+        items.forEach((el, i) => el.classList.toggle('selected', i === selectedIndex));
+        (items[selectedIndex] as HTMLElement).scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (items.length === 0) return;
+        selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+        items.forEach((el, i) => el.classList.toggle('selected', i === selectedIndex));
+        (items[selectedIndex] as HTMLElement).scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        const link = resultsEl!.querySelectorAll('.search-result')[Math.max(0, selectedIndex)] as HTMLElement | undefined;
+        if (link) {
+          e.preventDefault();
+          link.click();
+        }
+      }
+    });
+
+    modal.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('[data-search-close]')) {
+        closeModal();
+      }
+    });
+
+    // Wire the header search button (fresh node on every page)
+    const trigger = document.getElementById('search-trigger');
+    trigger?.addEventListener('click', () => openModal());
+
+    // Global keyboard shortcuts — bound once for the whole session
+    if (!(window as any).__searchKeysBound) {
+      (window as any).__searchKeysBound = true;
+      window.addEventListener('keydown', (e) => {
+        const m = document.getElementById('search-modal');
+        if (!m) return;
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          if (m.classList.contains('active')) {
+            (window as any).__closeSearch?.();
+          } else {
+            (window as any).__openSearch?.();
+          }
+        } else if (e.key === 'Escape' && m.classList.contains('active')) {
+          (window as any).__closeSearch?.();
+        }
+      });
+    }
+    (window as any).__openSearch = openModal;
+    (window as any).__closeSearch = closeModal;
+  }
+
+  initSearch();
+  document.addEventListener('astro:page-load', initSearch);
+</script>

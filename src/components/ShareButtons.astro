@@ -123,7 +123,8 @@ const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedTitle}%0A%0A${e
 <script>
   function initShareButtons() {
     const copyBtn = document.querySelector('.copy-link-btn');
-    if (!copyBtn) return;
+    if (!copyBtn || (copyBtn as any).__shareBound) return;
+    (copyBtn as any).__shareBound = true;
 
     copyBtn.addEventListener('click', async () => {
       const shareUrl = copyBtn.getAttribute('data-url') || window.location.href;

@@ -401,7 +401,8 @@
 <script>
   function initWidget() {
     const root = document.getElementById('transformer-explorer');
-    if (!root) return;
+    if (!root || (root as any).__vizBound) return;
+    (root as any).__vizBound = true;
 
     // Tab switching
     const tabBtns = root.querySelectorAll('.tab-btn');

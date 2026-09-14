@@ -72,7 +72,7 @@ function getAssetUrl(path?: string) {
                   {post.data.tags?.length > 0 && (
                     <div class="card-tags">
                       {post.data.tags.map((tag: string) => (
-                        <span class="card-tag">#{tag}</span>
+                        <span class="card-tag" data-tag-link={`${normalizedBase}tags/${tag}`}>#{tag}</span>
                       ))}
                     </div>
                   )}
@@ -301,6 +301,11 @@ function getAssetUrl(path?: string) {
     padding: 0.15rem 0.55rem;
     border-radius: 999px;
     transition: all 0.2s;
+    cursor: pointer;
+  }
+  .card-tag:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .read-more {

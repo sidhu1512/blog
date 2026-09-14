@@ -1,0 +1,199 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+
+  const tagMap = new Map<string, typeof posts>();
+  for (const post of posts) {
+    for (const tag of post.data.tags ?? []) {
+      if (!tagMap.has(tag)) tagMap.set(tag, []);
+      tagMap.get(tag)!.push(post);
+    }
+  }
+
+  return [...tagMap.entries()].map(([tag, tagPosts]) => ({
+    params: { tag },
+    props: { tag, tagPosts },
+  }));
+}
+
+const { tag, tagPosts } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+
+function getReadingTime(body: string = '') {
+  const words = body.split(/\s+/).length || 0;
+  return Math.max(1, Math.ceil(words / 200));
+}
+
+function getAssetUrl(path?: string) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith(normalizedBase)) return path;
+  return `${normalizedBase}${path.replace(/^\//, '')}`;
+}
+---
+
+<Layout
+  title={`#${tag} - Siddharth Bhadu`}
+  description={`Articles tagged #${tag} on Siddharth's engineering blog.`}
+>
+  <div class="hero">
+    <a href={`${base}tags`} class="back-link">&larr; All topics</a>
+    <h1>#{tag}</h1>
+    <p class="subtitle">
+      {tagPosts.length} {tagPosts.length === 1 ? 'article' : 'articles'} tagged with
+      <span class="tag-chip">#{tag}</span>
+    </p>
+  </div>
+
+  <div class="posts-list">
+    {
+      tagPosts.map((post) => {
+        const readingTime = getReadingTime(post.body);
+        return (
+          <article class="post-row liquid-glass">
+            <a href={`${normalizedBase}${post.id}`} class="post-row-link">
+              <div class="row-content">
+                <div class="row-meta">
+                  <time datetime={post.data.pubDate.toISOString()} class="row-date">
+                    {post.data.pubDate.toLocaleDateString('en-us', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </time>
+                  <span class="meta-separator">•</span>
+                  <span class="row-read-time">{readingTime} min read</span>
+                </div>
+                <h2 class="row-title">{post.data.title}</h2>
+                <p class="row-desc">{post.data.description}</p>
+              </div>
+              <span class="read-more">Read &rarr;</span>
+            </a>
+          </article>
+        );
+      })
+    }
+  </div>
+</Layout>
+
+<style>
+  .hero {
+    margin-bottom: 3rem;
+  }
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-family: monospace;
+    color: var(--muted-foreground);
+    text-decoration: none;
+    margin-bottom: 1.25rem;
+    transition: color 0.2s;
+  }
+  .back-link:hover {
+    color: var(--accent);
+  }
+  .hero h1 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 3.2rem;
+  }
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--muted-foreground);
+    margin-bottom: 0;
+  }
+  .tag-chip {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    background: var(--accent-muted);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+  }
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .post-row {
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .post-row:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+  .post-row-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem 1.75rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .row-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .row-date {
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: var(--accent);
+  }
+  .meta-separator {
+    color: var(--border);
+    font-size: 0.75rem;
+  }
+  .row-read-time {
+    font-family: monospace;
+    font-size: 0.78rem;
+    color: var(--muted-foreground);
+  }
+  .row-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.45rem;
+    line-height: 1.3;
+    transition: color 0.2s ease;
+  }
+  .post-row:hover .row-title {
+    color: var(--accent);
+  }
+  .row-desc {
+    margin-bottom: 0;
+    font-size: 0.95rem;
+    color: var(--muted-foreground);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .read-more {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent);
+    white-space: nowrap;
+    transition: transform 0.2s ease;
+  }
+  .post-row:hover .read-more {
+    transform: translateX(4px);
+  }
+  @media (max-width: 640px) {
+    .post-row-link {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+  }
+</style>

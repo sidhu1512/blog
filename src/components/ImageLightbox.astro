@@ -195,6 +195,17 @@
 </style>
 
 <script>
+  // Zoom/pan state lives at module level so the persistent window-level
+  // listeners (drag, keyboard) stay correct across view-transition swaps.
+  // The modal DOM is recreated on every navigation, so initLightbox re-binds
+  // it after each swap — guarded against double-binding.
+  let scale = 1;
+  let panX = 0;
+  let panY = 0;
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+
   function initLightbox() {
     const lightbox = document.getElementById('image-lightbox');
     const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
@@ -207,13 +218,8 @@
     const stage = document.getElementById('lightbox-stage');
 
     if (!lightbox || !lightboxImg || !stage) return;
-
-    let scale = 1;
-    let panX = 0;
-    let panY = 0;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
+    if ((lightbox as any).__lightboxBound) return;
+    (lightbox as any).__lightboxBound = true;
 
     function applyTransform() {
       if (!lightboxImg) return;
@@ -325,34 +331,42 @@
       stage.classList.add('panning');
     });
 
-    window.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      panX = e.clientX - startX;
-      panY = e.clientY - startY;
-      applyTransform();
-    });
+    // Window-level listeners are bound exactly once for the browser session;
+    // they resolve the current DOM at event time so view-transition swaps are safe.
+    if (!(window as any).__lightboxGlobalBound) {
+      (window as any).__lightboxGlobalBound = true;
 
-    window.addEventListener('mouseup', () => {
-      if (isDragging) {
-        isDragging = false;
-        stage.classList.remove('panning');
-      }
-    });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        applyTransform();
+      });
 
-    // Keyboard ESC to close, +/- to zoom
-    window.addEventListener('keydown', (e) => {
-      if (!lightbox?.classList.contains('active')) return;
-      if (e.key === 'Escape') {
-        closeModal();
-      } else if (e.key === '+' || e.key === '=') {
-        scale = Math.min(4, scale + 0.35);
-        applyTransform();
-      } else if (e.key === '-') {
-        scale = Math.max(1, scale - 0.35);
-        if (scale === 1) { panX = 0; panY = 0; }
-        applyTransform();
-      }
-    });
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          document.getElementById('lightbox-stage')?.classList.remove('panning');
+        }
+      });
+
+      // Keyboard ESC to close, +/- to zoom
+      window.addEventListener('keydown', (e) => {
+        const lb = document.getElementById('image-lightbox');
+        if (!lb || !lb.classList.contains('active')) return;
+        if (e.key === 'Escape') {
+          (window as any).__closeLightbox?.();
+        } else if (e.key === '+' || e.key === '=') {
+          scale = Math.min(4, scale + 0.35);
+          applyTransform();
+        } else if (e.key === '-') {
+          scale = Math.max(1, scale - 0.35);
+          if (scale === 1) { panX = 0; panY = 0; }
+          applyTransform();
+        }
+      });
+    }
+    (window as any).__closeLightbox = closeModal;
   }
 
   initLightbox();

@@ -10,9 +10,12 @@ Built with **[Astro](https://astro.build/)** for zero-runtime JavaScript overhea
 
 The site incorporates modern technical reading UX patterns inspired by platforms like **AlgoMaster.io**, **Stripe Engineering**, and **GitHub**:
 
-- **Aesthetic**: Deep dark palette (`#0a0a0a`), warm gold accents (`#eab308`), paired with `Instrument Serif` headings and clean `Inter` body typography.
+- **Aesthetic**: Deep dark palette (`#0a0a0a`), warm gold accents (`#eab308`), paired with `Instrument Serif` headings and clean `Inter` body typography — fully self-hosted via Fontsource (no external font CDN).
 - **Interactive Code Blocks**: Syntax highlighting via Shiki (`github-dark`), automatic uppercase language badges, and one-click clipboard copy with feedback animation.
 - **Callout & Alert Boxes**: Native GitHub-style blockquote alerts (`[!NOTE]`, `[!TIP]`, `[!WARNING]`, `[!IMPORTANT]`) rendered with distinct accents and border styling.
+- **Math Rendering**: KaTeX for LaTeX equations — inline `$E = mc^2$` and `$$display$$` blocks in any `.md`/`.mdx` post.
+- **Comments**: GitHub Discussions-backed comments via [giscus](https://giscus.app) (see `src/components/Comments.astro` for the one-time setup).
+- **View Transitions**: Smooth client-side page navigation via Astro's `ClientRouter` — all interactive widgets re-initialize safely after swaps.
 - **Reading Experience**:
   - Sticky Table of Contents with real-time scrollspy active state tracking.
   - Smooth reading progress indicator bar.
@@ -21,7 +24,11 @@ The site incorporates modern technical reading UX patterns inspired by platforms
   - Responsive Previous / Next article navigation cards.
   - Social sharing bar (Twitter/X, LinkedIn, Copy Link).
   - Clean breadcrumb trails (`Portfolio / Blog / Article`).
-- **SEO & Syndication**: Complete OpenGraph and Twitter card metadata, dynamic `sitemap.xml`, and full RSS feed at `/blog/rss.xml`.
+- **SEO & Syndication**: Complete OpenGraph and Twitter card metadata, JSON-LD `BlogPosting`/`WebSite` structured data, dynamic `sitemap.xml`, and full RSS feed at `/blog/rss.xml`.
+- **Search**: Keyboard-first site search (`Ctrl+K` / `Cmd+K`) powered by [Pagefind](https://pagefind.app/) — a static search index generated at build time with zero runtime backend.
+- **Tags & Discovery**: Clickable topic tags on every post and card, a `/blog/tags` topic index, and per-tag listing pages. Pages are prefetched on hover for near-instant navigation.
+- **404 Page**: Themed not-found page with quick links back to the blog.
+- **Freshness Signals**: Optional `updatedDate` frontmatter renders an "Updated …" badge on posts and feeds `dateModified` into structured data.
 - **Zero-Bloat Performance**: Pure static HTML generation with vanilla JavaScript widgets where needed.
 
 ---
@@ -36,12 +43,14 @@ blog/
 ├── src/
 │   ├── components/
 │   │   ├── AuthorBio.astro      # Author profile card
+│   │   ├── Comments.astro       # Giscus (GitHub Discussions) comments
 │   │   ├── CopyButton.astro     # Code block copy button & language tag
 │   │   ├── Footer.astro         # Site footer with RSS and social links
 │   │   ├── Header.astro         # Sticky blurred header with nav links
 │   │   ├── PostNavigation.astro # Previous / Next post cards
 │   │   ├── ProgressBar.astro    # Reading progress bar
-│   │   ├── SEO.astro            # Meta and OG tags
+│   │   ├── SearchModal.astro    # Ctrl+K search overlay (Pagefind)
+│   │   ├── SEO.astro            # Meta, OG tags, and JSON-LD structured data
 │   │   ├── ShareButtons.astro   # Twitter, LinkedIn, copy link bar
 │   │   └── interactive/         # Custom interactive widgets
 │   ├── content/
@@ -74,10 +83,13 @@ Articles live in `src/content/blog/` as either standard `.md` or interactive `.m
 title: "Transformers: From Understanding Language to Generating Text"
 description: "A comprehensive, intuitive deep dive into the Transformer architecture—from tokenization and self-attention to causal masking and cross-attention."
 pubDate: "2026-05-04"
+updatedDate: "2026-06-01"   # optional — shows an "Updated" badge on the post
 heroImage: "/images/encoder-decoder.png"
 tags: ["ai", "deep-learning", "transformers", "nlp"]
 ---
 ```
+
+Tags automatically appear on the `/blog/tags` topics index and get their own listing page at `/blog/tags/<tag>`.
 
 ### Supported Markdown Extras
 
@@ -116,7 +128,7 @@ npm install
 # Start local dev server
 npm run dev
 
-# Build static production bundle to /dist
+# Build static production bundle to /dist (then generates the Pagefind search index)
 npm run build
 
 # Preview production build locally

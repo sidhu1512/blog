@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Page Not Found - Siddharth Bhadu"
+  description="The page you are looking for does not exist."
+>
+  <div class="notfound">
+    <p class="code">404</p>
+    <h1>Page not found.</h1>
+    <p class="subtitle">
+      The page you are looking for doesn't exist, was moved, or never existed at all.
+    </p>
+    <div class="actions">
+      <a href={import.meta.env.BASE_URL} class="btn primary">
+        &larr; Back to blog
+      </a>
+      <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/about`} class="btn ghost">About me</a>
+    </div>
+    <p class="hint">
+      Looking for something specific? Press <kbd>Ctrl</kbd> + <kbd>K</kbd> to search the site.
+    </p>
+  </div>
+</Layout>
+
+<style>
+  .notfound {
+    max-width: 48rem;
+    margin: 4rem auto 0;
+    text-align: center;
+  }
+  .code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(5rem, 18vw, 9rem);
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--accent), var(--foreground));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+  h1 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+  .subtitle {
+    color: var(--muted-foreground);
+    max-width: 34rem;
+    margin: 0 auto 2.5rem;
+  }
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .btn {
+    text-decoration: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
+  .btn.primary {
+    background: var(--accent);
+    color: var(--background);
+  }
+  .btn.primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+  .btn.ghost {
+    background: var(--surface);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+  }
+  .btn.ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .hint {
+    font-size: 0.9rem;
+    color: var(--muted-foreground);
+  }
+  .hint kbd {
+    margin: 0 0.15rem;
+  }
+</style>

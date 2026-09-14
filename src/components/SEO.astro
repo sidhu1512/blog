@@ -6,6 +6,7 @@ export interface Props {
   url?: string;
   type?: 'website' | 'article';
   pubDate?: Date | string;
+  updatedDate?: Date | string;
   tags?: string[];
 }
 
@@ -16,6 +17,7 @@ const {
   url,
   type = 'website',
   pubDate,
+  updatedDate,
   tags = []
 } = Astro.props;
 
@@ -53,6 +55,38 @@ function getAbsoluteImageUrl(img?: string): string {
 const canonicalUrl = getCanonicalUrl();
 const absoluteImageUrl = getAbsoluteImageUrl(image);
 const publishedTime = pubDate ? (pubDate instanceof Date ? pubDate.toISOString() : new Date(pubDate).toISOString()) : undefined;
+
+// JSON-LD structured data for rich search results
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': type === 'article' ? 'BlogPosting' : 'WebSite',
+  ...(type === 'article'
+    ? {
+        headline: title,
+        description,
+        image: absoluteImageUrl,
+        url: canonicalUrl,
+        datePublished: publishedTime,
+        ...(updatedDate ? { dateModified: updatedDate instanceof Date ? updatedDate.toISOString() : new Date(updatedDate).toISOString() } : {}),
+        author: {
+          '@type': 'Person',
+          name: 'Siddharth Bhadu',
+          url: 'https://sidhu1512.github.io/',
+        },
+        keywords: tags.length > 0 ? tags.join(', ') : undefined,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+      }
+    : {
+        name: 'Siddharth Bhadu - Engineering Blog',
+        url: canonicalUrl,
+        description,
+        author: {
+          '@type': 'Person',
+          name: 'Siddharth Bhadu',
+          url: 'https://sidhu1512.github.io/',
+        },
+      }),
+};
 ---
 
 <!-- Primary Meta Tags -->
@@ -91,3 +125,6 @@ const publishedTime = pubDate ? (pubDate instanceof Date ? pubDate.toISOString()
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={absoluteImageUrl} />
 <meta name="twitter:image:alt" content={title} />
+
+<!-- Structured data for rich search results -->
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />

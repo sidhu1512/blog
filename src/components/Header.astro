@@ -16,8 +16,17 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
       <nav>
         <a href="https://sidhu1512.github.io/" class="nav-btn">Portfolio</a>
         <a href={base} class={`nav-btn ${normalizedPath === normalizedBase ? 'active' : ''}`}>Blog</a>
+        <a href={`${normalizedBase}/tags`} class={`nav-btn ${normalizedPath === `${normalizedBase}/tags` ? 'active' : ''}`}>Topics</a>
         <a href={`${normalizedBase}/about`} class={`nav-btn ${normalizedPath === `${normalizedBase}/about` ? 'active' : ''}`}>About</a>
       </nav>
+      <div class="divider"></div>
+      <button id="search-trigger" class="search-trigger" aria-label="Search (Ctrl+K)" title="Search (Ctrl+K)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span class="search-kbd">Ctrl K</span>
+      </button>
       <div class="divider"></div>
       <ThemeToggle />
     </div>
@@ -73,6 +82,33 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
     height: 20px;
     background: var(--border);
     margin: 0 0.25rem;
+  }
+  .search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all 0.2s ease;
+  }
+  .search-trigger:hover {
+    color: var(--foreground);
+    border-color: var(--accent);
+  }
+  .search-kbd {
+    font-family: monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+  }
+  @media (max-width: 640px) {
+    .search-kbd {
+      display: none;
+    }
   }
   .nav-btn {
     text-decoration: none;

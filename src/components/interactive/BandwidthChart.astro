@@ -33,15 +33,18 @@
 </style>
 
 <script>
-  let isUSB = true;
-  const btn = document.getElementById('toggle-chart');
-  const barRead = document.getElementById('bar-read');
-  const barWrite = document.getElementById('bar-write');
-  const valRead = document.getElementById('val-read');
-  const valWrite = document.getElementById('val-write');
+  function initBandwidthChart() {
+    const btn = document.getElementById('toggle-chart');
+    if (!btn || (btn as any).__bandwidthBound) return;
+    (btn as any).__bandwidthBound = true;
 
-  if (btn) {
+    let isUSB = true;
     btn.addEventListener('click', () => {
+      const barRead = document.getElementById('bar-read');
+      const barWrite = document.getElementById('bar-write');
+      const valRead = document.getElementById('val-read');
+      const valWrite = document.getElementById('val-write');
+
       isUSB = !isUSB;
       if (isUSB) {
         btn.textContent = 'Switch to PCIe';
@@ -58,4 +61,7 @@
       }
     });
   }
+
+  initBandwidthChart();
+  document.addEventListener('astro:page-load', initBandwidthChart);
 </script>

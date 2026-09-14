@@ -41,12 +41,15 @@
 </style>
 
 <script>
-  const tab3090 = document.getElementById('tab-3090');
-  const tab4090 = document.getElementById('tab-4090');
-  const specCuda = document.getElementById('spec-cuda');
-  const specTdp = document.getElementById('spec-tdp');
+  function initHardwareToggle() {
+    const tab3090 = document.getElementById('tab-3090');
+    const tab4090 = document.getElementById('tab-4090');
+    if (!tab3090 || !tab4090 || (tab3090 as any).__hardwareBound) return;
+    (tab3090 as any).__hardwareBound = true;
 
-  if (tab3090 && tab4090) {
+    const specCuda = document.getElementById('spec-cuda');
+    const specTdp = document.getElementById('spec-tdp');
+
     tab3090.addEventListener('click', () => {
       tab3090.classList.add('active');
       tab4090.classList.remove('active');
@@ -60,4 +63,7 @@
       if(specTdp) specTdp.textContent = '450W';
     });
   }
+
+  initHardwareToggle();
+  document.addEventListener('astro:page-load', initHardwareToggle);
 </script>
