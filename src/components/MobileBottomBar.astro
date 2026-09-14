@@ -1,0 +1,44 @@
+---
+import ThemePicker from './ThemePicker.astro';
+/**
+ * MobileBottomBar — Bottom action bar for mobile with dice + theme picker.
+ * Only visible on screens < 640px. Keeps theme controls thumb-reachable.
+ */
+---
+<div id="mobile-bottom-bar" class="mobile-bottom-bar" aria-hidden="true">
+  <div class="bottom-bar-inner">
+    <ThemePicker position="bottom" />
+  </div>
+</div>
+
+<style>
+  .mobile-bottom-bar {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .mobile-bottom-bar {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      z-index: 98; /* below header (100), above scroll-to-top (99) */
+      padding: 0.5rem 1rem;
+      padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+    }
+    .bottom-bar-inner {
+      max-width: 86rem;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+    /* Hide theme picker from header on mobile */
+    .theme-picker {
+      display: none;
+    }
+  }
+</style>

@@ -44,12 +44,15 @@ function getAssetUrl(path?: string) {
 }
 
 const coverImageUrl = getAssetUrl(post.data.heroImage);
+// Auto-generated OG card (via src/pages/open-graph/[...slug].ts) as a fallback
+const ogImageUrl = `${siteUrl}${normalizedBase}open-graph/${post.id}.png`;
+const socialImageUrl = coverImageUrl ?? ogImageUrl;
 ---
 
 <Layout 
   title={`${post.data.title} - Siddharth Bhadu`} 
   description={post.data.description}
-  image={coverImageUrl}
+  image={socialImageUrl}
   type="article"
   pubDate={post.data.pubDate}
   updatedDate={post.data.updatedDate}
@@ -394,7 +397,7 @@ const coverImageUrl = getAssetUrl(post.data.heroImage);
     }
   }
 
-  /* ---- Phones: smaller hero, tap-safe FAB (hover-only there anyway) ---- */
+  /* ---- Phones: smaller hero, tap-safe FAB ---- */
   @media (max-width: 640px) {
     .prose-header {
       margin-bottom: 1.75rem;
@@ -404,7 +407,10 @@ const coverImageUrl = getAssetUrl(post.data.heroImage);
       margin-bottom: 1.75rem;
     }
     .scroll-to-top {
-      display: none; /* native momentum scrolling makes it pointless on touch */
+      bottom: 4.5rem; /* above mobile bottom bar */
+      right: 1rem;
+      width: 44px;
+      height: 44px;
     }
   }
 </style>
@@ -416,100 +422,108 @@ const coverImageUrl = getAssetUrl(post.data.heroImage);
   // bound exactly once for the lifetime of the browser session.
 
   function initHeadingAnchors() {
-    const headings = document.querySelectorAll('.content-body h2, .content-body h3, .content-body h4');
-    headings.forEach((heading) => {
-      if (heading.querySelector('.heading-anchor')) return;
-      if (!heading.id) return;
+    try {
+      const headings = document.querySelectorAll('.content-body h2, .content-body h3, .content-body h4');
+      headings.forEach((heading) => {
+        if (heading.querySelector('.heading-anchor')) return;
+        if (!heading.id) return;
 
-      const anchor = document.createElement('a');
-      anchor.className = 'heading-anchor';
-      anchor.href = `#${heading.id}`;
-      anchor.setAttribute('aria-label', `Anchor link for ${heading.textContent}`);
-      anchor.innerHTML = '#';
+        const anchor = document.createElement('a');
+        anchor.className = 'heading-anchor';
+        anchor.href = `#${heading.id}`;
+        anchor.setAttribute('aria-label', `Anchor link for ${heading.textContent}`);
+        anchor.innerHTML = '#';
 
-      anchor.addEventListener('click', async (e) => {
-        try {
-          const url = new URL(window.location.href);
-          url.hash = heading.id;
-          await navigator.clipboard.writeText(url.toString());
-        } catch {}
+        anchor.addEventListener('click', async (e) => {
+          try {
+            const url = new URL(window.location.href);
+            url.hash = heading.id;
+            await navigator.clipboard.writeText(url.toString());
+          } catch {}
+        });
+
+        heading.appendChild(anchor);
       });
-
-      heading.appendChild(anchor);
-    });
+    } catch {}
   }
 
   function updateTOC() {
-    const tocList = document.querySelector('.toc-list');
-    const tocLinks = document.querySelectorAll('.toc-list a');
-    const headings = Array.from(document.querySelectorAll('.content-body h2, .content-body h3, .content-body h4'));
+    try {
+      const tocList = document.querySelector('.toc-list');
+      const tocLinks = document.querySelectorAll('.toc-list a');
+      const headings = Array.from(document.querySelectorAll('.content-body h2, .content-body h3, .content-body h4'));
 
-    if (headings.length === 0 || !tocList) return;
+      if (headings.length === 0 || !tocList) return;
 
-    const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60);
+      const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60);
 
-    let currentHeading = headings[0];
-    if (isAtBottom) {
-      currentHeading = headings[headings.length - 1];
-    } else {
-      for (let i = 0; i < headings.length; i++) {
-        const rect = headings[i].getBoundingClientRect();
-        if (rect.top <= 160) {
-          currentHeading = headings[i];
-        } else {
-          break;
+      let currentHeading = headings[0];
+      if (isAtBottom) {
+        currentHeading = headings[headings.length - 1];
+      } else {
+        for (let i = 0; i < headings.length; i++) {
+          const rect = headings[i].getBoundingClientRect();
+          if (rect.top <= 160) {
+            currentHeading = headings[i];
+          } else {
+            break;
+          }
         }
       }
-    }
 
-    if (currentHeading) {
-      const activeLink = document.querySelector(`.toc-list a[href="#${currentHeading.id}"]`);
-      if (activeLink && !activeLink.classList.contains('active')) {
-        tocLinks.forEach(link => link.classList.remove('active'));
-        activeLink.classList.add('active');
+      if (currentHeading) {
+        const activeLink = document.querySelector(`.toc-list a[href="#${currentHeading.id}"]`);
+        if (activeLink && !activeLink.classList.contains('active')) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          activeLink.classList.add('active');
 
-        // Automatically scroll the active link into view inside the TOC container
-        activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          // Automatically scroll the active link into view inside the TOC container
+          activeLink.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
       }
-    }
+    } catch {}
   }
 
   function initPostPage() {
-    // Scroll-to-top button (a fresh node after every swap)
-    const scrollBtn = document.getElementById('scroll-to-top');
-    if (scrollBtn && !(scrollBtn as any).__bound) {
-      (scrollBtn as any).__bound = true;
-      scrollBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      // Scroll-to-top button (a fresh node after every swap)
+      const scrollBtn = document.getElementById('scroll-to-top');
+      if (scrollBtn && !(scrollBtn as any).__bound) {
+        (scrollBtn as any).__bound = true;
+        scrollBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      initHeadingAnchors();
+
+      // Handle direct click on TOC links
+      document.querySelectorAll('.toc-list a').forEach((link) => {
+        if ((link as any).__bound) return;
+        (link as any).__bound = true;
+        link.addEventListener('click', () => {
+          document.querySelectorAll('.toc-list a').forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        });
       });
-    }
 
-    initHeadingAnchors();
-
-    // Handle direct click on TOC links
-    document.querySelectorAll('.toc-list a').forEach((link) => {
-      if ((link as any).__bound) return;
-      (link as any).__bound = true;
-      link.addEventListener('click', () => {
-        document.querySelectorAll('.toc-list a').forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-        link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      });
-    });
-
-    setTimeout(updateTOC, 100);
+      setTimeout(updateTOC, 100);
+    } catch {}
   }
 
   // Single persistent scroll listener driving scroll-to-top visibility + scrollspy
   if (!(window as any).__postScrollBound) {
     (window as any).__postScrollBound = true;
     window.addEventListener('scroll', () => {
-      const scrollBtn = document.getElementById('scroll-to-top');
-      if (scrollBtn) {
-        if (window.scrollY > 500) scrollBtn.classList.add('visible');
-        else scrollBtn.classList.remove('visible');
-      }
-      updateTOC();
+      try {
+        const scrollBtn = document.getElementById('scroll-to-top');
+        if (scrollBtn) {
+          if (window.scrollY > 500) scrollBtn.classList.add('visible');
+          else scrollBtn.classList.remove('visible');
+        }
+        updateTOC();
+      } catch {}
     }, { passive: true });
   }
 

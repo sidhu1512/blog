@@ -1,0 +1,323 @@
+---
+/**
+ * ThemePicker — 30 community-style "skins" with a dice button.
+ * Mirrors the mechanism of deut-erium.github.io: the browser holds a
+ * `data-skin` attribute on <html> and a scoped stylesheet (themes.css)
+ * repaints the blog. The dice picks a random skin that differs from the
+ * current one; a companion <select> browses every skin by name.
+ *
+ * Persistence: localStorage["theme-skin"]. "Default" (no attribute)
+ * keeps the original light/dark design.
+ */
+interface Props {
+  position?: 'top' | 'bottom';
+}
+const { position = 'top' } = Astro.props;
+import skins from '../theme-skins/skins.json';
+---
+
+<div class="theme-picker" data-position={position}>
+  <button id="theme-dice" class="theme-dice" type="button" aria-label="Random theme" title="Surprise me with a random theme">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+      <circle cx="8.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
+      <circle cx="15.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
+      <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"></circle>
+      <circle cx="8.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
+      <circle cx="15.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
+    </svg>
+  </button>
+
+  <details class="theme-menu" id="theme-menu">
+    <summary class="theme-menu-summary" aria-label="Choose a theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2a10 10 0 1 0 10 10"></path>
+        <path d="M12 2a10 10 0 0 1 10 10"></path>
+        <path d="M2 12h10"></path>
+      </svg>
+      <span class="theme-menu-text">Theme</span>
+      <span class="theme-current" id="theme-current" aria-live="polite"></span>
+    </summary>
+    <div class="theme-menu-panel">
+      <select id="theme-select" class="theme-select" aria-label="Choose a theme">
+        <option value="">Default</option>
+        {skins.map((s) => <option value={s.id}>{s.name}</option>)}
+      </select>
+      <button id="theme-dice-btn" class="theme-dice-btn" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+          <circle cx="8.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
+          <circle cx="15.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
+          <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"></circle>
+          <circle cx="8.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
+          <circle cx="15.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
+        </svg>
+        Surprise me
+      </button>
+    </div>
+  </details>
+</div>
+
+<style>
+  .theme-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+    min-width: 300px;
+  }
+  @media (max-width: 640px) {
+    .theme-picker {
+      min-width: 0;
+    }
+  }
+  .theme-dice {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+  .theme-dice:hover {
+    color: var(--foreground);
+    border-color: var(--accent);
+    background: var(--surface-raised);
+    transform: translateY(-1px);
+  }
+  .theme-dice.is-rolling svg {
+    animation: theme-dice-roll 0.5s ease-in-out;
+  }
+  .theme-dice-btn.is-rolling svg {
+    animation: theme-dice-roll 0.5s ease-in-out;
+  }
+  @keyframes theme-dice-roll {
+    0% { transform: rotate(0deg) scale(1); }
+    30% { transform: rotate(180deg) scale(0.88); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  .theme-menu {
+    position: relative;
+  }
+  .theme-menu-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    height: 36px;
+    padding: 0 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    list-style: none;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .theme-menu-summary::-webkit-details-marker {
+    display: none;
+  }
+  .theme-menu-summary:hover {
+    color: var(--foreground);
+    border-color: var(--accent);
+    background: var(--surface-raised);
+  }
+  .theme-menu[open] .theme-menu-summary {
+    color: var(--foreground);
+    border-color: var(--accent);
+  }
+  .theme-current {
+    font-family: monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    max-width: 11rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .theme-menu-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    width: 240px;
+    z-index: 120;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-shadow: var(--shadow-card);
+  }
+  .theme-picker[data-position="bottom"] .theme-menu-panel {
+    top: auto;
+    bottom: calc(100% + 0.5rem);
+  }
+  .theme-select {
+    width: 100%;
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .theme-select:focus-visible,
+  .theme-dice:focus-visible,
+  .theme-dice-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .theme-dice-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    background: var(--accent-muted);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .theme-dice-btn:hover {
+    border-color: var(--accent);
+    color: var(--foreground);
+  }
+
+  @media (max-width: 640px) {
+    .theme-menu-text {
+      display: none;
+    }
+    .theme-current {
+      display: none;
+    }
+    .theme-menu-summary {
+      padding: 0 0.6rem;
+    }
+  }
+  @media (max-width: 480px) {
+    .theme-picker {
+      gap: 0.3rem;
+    }
+    .theme-dice {
+      width: 34px;
+      height: 34px;
+    }
+    .theme-menu-summary {
+      height: 34px;
+      padding: 0 0.5rem;
+    }
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'theme-skin';
+  const root = document.documentElement;
+  const ids = (root.dataset.skins || '').split(/\s+/).filter(Boolean);
+
+  const stored = () => {
+    try {
+      return localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  };
+  const save = (id) => {
+    try {
+      if (id) localStorage.setItem(STORAGE_KEY, id);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  };
+
+  const skinName = (id) => {
+    const option = document.querySelector(`#theme-select option[value="${id}"]`);
+    return option ? option.textContent : '';
+  };
+
+  function applySkin(id) {
+    const has = id && ids.includes(id);
+    if (has) root.setAttribute('data-skin', id);
+    else root.removeAttribute('data-skin');
+
+    const select = document.getElementById('theme-select');
+    if (select) select.value = has ? id : '';
+
+    const label = document.getElementById('theme-current');
+    if (label) label.textContent = has ? skinName(id) : 'Default';
+  }
+
+  function roll() {
+    const current = root.getAttribute('data-skin');
+    const choices = ids.filter((id) => id !== current);
+    if (choices.length === 0) return;
+    const pick = choices[Math.floor(Math.random() * choices.length)];
+    const dice = document.getElementById('theme-dice');
+    const diceBtn = document.getElementById('theme-dice-btn');
+
+    // Leave the attribute untouched while rolling; flick the label with
+    // random names so the final pick still lands on a fresh value.
+    const label = document.getElementById('theme-current');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reduced) {
+      if (dice) dice.classList.add('is-rolling');
+      if (diceBtn) diceBtn.classList.add('is-rolling');
+      const start = Date.now();
+      let i = 0;
+      const timer = setInterval(() => {
+        if (label) label.textContent = skinName(choices[i++ % choices.length]) || '...';
+        if (Date.now() - start >= 480) {
+          clearInterval(timer);
+          applySkin(pick);
+          save(pick);
+          if (dice) dice.classList.remove('is-rolling');
+          if (diceBtn) diceBtn.classList.remove('is-rolling');
+        }
+      }, 80);
+    } else {
+      applySkin(pick);
+      save(pick);
+    }
+  }
+
+  function init() {
+    applySkin(stored() ?? null);
+    if (window.__themePickerBound) return;
+    window.__themePickerBound = true;
+
+    const dice = document.getElementById('theme-dice');
+    const diceBtn = document.getElementById('theme-dice-btn');
+    const select = document.getElementById('theme-select');
+
+    if (dice) dice.addEventListener('click', roll);
+    if (diceBtn) diceBtn.addEventListener('click', roll);
+
+    if (select) {
+      select.addEventListener('change', () => {
+        const id = select.value || null;
+        save(id);
+        applySkin(id);
+        const details = document.getElementById('theme-menu');
+        if (details) details.open = false;
+      });
+    }
+  }
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>

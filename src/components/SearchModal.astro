@@ -33,7 +33,7 @@
   </div>
 </div>
 
-<style>
+<style is:global>
   .search-modal {
     position: fixed;
     inset: 0;
@@ -116,12 +116,41 @@
     min-height: 80px;
   }
   .search-results:empty::after {
-    content: 'Type to search the site...';
+    content: 'Type to search the site… or press \2018 /\2019 for commands';
     display: block;
     text-align: center;
     color: var(--muted-foreground);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     padding: 1.5rem 0;
+  }
+  .command-group {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 0.55rem 0.9rem 0.25rem;
+  }
+  .command-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .command-name {
+    font-family: monospace;
+    color: var(--accent);
+    font-size: 0.9rem;
+    min-width: 4rem;
+  }
+  .command-label {
+    color: var(--foreground);
+    font-size: 0.95rem;
+    flex: 1;
+  }
+  .command-hint {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
   }
   .search-result {
     display: block;
@@ -199,7 +228,8 @@
       if (pagefind) return pagefind;
       try {
         // Constructed at runtime so the bundler does not try to resolve it at build time
-        const pagefindUrl = `${import.meta.env.BASE_URL}pagefind/pagefind.js`;
+        const base = import.meta.env.BASE_URL;
+        const pagefindUrl = `${base.endsWith('/') ? base : base + '/'}pagefind/pagefind.js`;
         pagefind = await import(/* @vite-ignore */ pagefindUrl);
         await pagefind.options({ highlightParam: 'pagefind' });
       } catch {
@@ -223,6 +253,9 @@
       input!.value = '';
       resultsEl!.innerHTML = '';
       selectedIndex = -1;
+      // Return focus to trigger for accessibility
+      const trigger = document.getElementById('search-trigger');
+      trigger?.focus();
     }
 
     function renderResults(results: any[]) {
@@ -232,9 +265,14 @@
         selectedIndex = -1;
         return;
       }
+      const base = import.meta.env.BASE_URL;
+      const absBase = base === '/' ? '' : base.replace(/\/$/, '');
       resultsEl!.innerHTML = results
         .map((r, i) => {
-          const url = r.meta?.url ?? r.url ?? '#';
+          let url = r.meta?.url ?? r.url ?? '#';
+          if (url && !url.startsWith('http') && !url.startsWith('#')) {
+            url = `${absBase}${url.startsWith('/') ? url : '/' + url}`;
+          }
           const title = r.meta?.title ?? 'Untitled';
           return `
             <a class="search-result${i === selectedIndex ? ' selected' : ''}" href="${url}" data-search-result>
@@ -243,6 +281,94 @@
             </a>`;
         })
         .join('');
+    }
+
+    const COMMANDS = [
+      {
+        match: '/theme',
+        label: 'Toggle light / dark mode',
+        hint: '',
+        run: () => {
+          const btn = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+          btn?.click();
+        },
+      },
+      {
+        match: '/dice',
+        label: 'Roll a random theme',
+        hint: '',
+        run: () => {
+          const dice = document.getElementById('theme-dice') as HTMLButtonElement | null;
+          dice?.click();
+        },
+      },
+      {
+        match: '/copy',
+        label: 'Copy link to this page',
+        hint: '',
+        run: () => {
+          try {
+            navigator.clipboard.writeText(window.location.href);
+          } catch {}
+        },
+      },
+      {
+        match: '/random',
+        label: 'Open a random post',
+        hint: '',
+        run: () => {
+          const el = document.getElementById('posts-json') as HTMLScriptElement | null;
+          const posts: string[] = el ? JSON.parse(el.textContent || '[]') : [];
+          if (posts.length === 0) return;
+          const pick = posts[Math.floor(Math.random() * posts.length)];
+          window.location.href = `${import.meta.env.BASE_URL}${pick}/`;
+        },
+      },
+      {
+        match: '/top',
+        label: 'Back to top',
+        hint: '',
+        run: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+      },
+    ];
+
+    function renderCommands(query: string) {
+      const q = query.trim().toLowerCase();
+      const cmds = q.startsWith('/')
+        ? COMMANDS.filter(
+            (c) => c.match.startsWith(q) || c.label.toLowerCase().includes(q.slice(1))
+          )
+        : COMMANDS;
+      if (cmds.length === 0) {
+        resultsEl!.innerHTML =
+          '<div class="search-meta">No commands match. Try: /dice, /random, /theme.</div>';
+        selectedIndex = -1;
+        return;
+      }
+      resultsEl!.innerHTML =
+        '<div class="command-group">Commands</div>' +
+        cmds
+          .map(
+            (c, i) => `
+            <button class="search-result" data-command data-cmd="${c.match}" ${i === selectedIndex ? 'selected="true"' : ''}>
+              <div class="command-row">
+                <span class="command-name">${c.match}</span>
+                <span class="command-label">${c.label}</span>
+                <span class="command-hint">Enter</span>
+              </div>
+            </button>`
+          )
+          .join('');
+      resultsEl!.querySelectorAll('.search-result').forEach((el, i) => {
+        el.classList.toggle('selected', i === selectedIndex);
+      });
+    }
+
+    function runCommand(cmdMatch: string) {
+      const cmd = COMMANDS.find((c) => c.match === cmdMatch);
+      if (!cmd) return;
+      closeModal();
+      cmd.run();
     }
 
     async function runSearch(query: string) {
@@ -263,15 +389,28 @@
     input.addEventListener('input', () => {
       const query = input!.value.trim();
       if (searchDebounce) clearTimeout(searchDebounce);
-      if (!query) {
-        resultsEl!.innerHTML = '';
+      if (!query || query === '/') {
+        renderCommands(query);
         selectedIndex = -1;
         return;
       }
-      searchDebounce = setTimeout(() => runSearch(query), 120);
+      if (query.startsWith('/')) {
+        renderCommands(query);
+      } else {
+        selectedIndex = -1;
+        searchDebounce = setTimeout(() => runSearch(query), 120);
+      }
     });
 
     input.addEventListener('keydown', (e) => {
+      if ((input!.value.startsWith('/') || input!.value.trim() === '') && e.key === 'Enter') {
+        const btn = resultsEl!.querySelectorAll('.search-result')[Math.max(0, selectedIndex)] as HTMLElement | undefined;
+        if (btn) {
+          e.preventDefault();
+          btn.click();
+        }
+        return;
+      }
       const items = resultsEl!.querySelectorAll('.search-result');
       if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -295,6 +434,11 @@
     });
 
     modal.addEventListener('click', (e) => {
+      const cmd = (e.target as HTMLElement).closest('[data-cmd]') as HTMLElement | null;
+      if (cmd?.dataset.cmd) {
+        runCommand(cmd.dataset.cmd);
+        return;
+      }
       if ((e.target as HTMLElement).closest('[data-search-close]')) {
         closeModal();
       }

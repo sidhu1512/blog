@@ -1,5 +1,6 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import ThemePicker from './ThemePicker.astro';
 
 const pathname = new URL(Astro.request.url).pathname;
 const base = import.meta.env.BASE_URL;
@@ -29,6 +30,7 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
       </button>
       <div class="divider"></div>
       <ThemeToggle />
+      <ThemePicker />
     </div>
   </div>
 </header>
@@ -50,8 +52,8 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
     margin: 0 auto;
     padding: 0 2rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 1rem;
   }
   @media (min-width: 1280px) {
     .header-container {
@@ -64,14 +66,19 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
     font-size: 1.8rem;
     color: var(--foreground);
     transition: color 0.2s;
+    flex-shrink: 0;
+    min-width: 180px;
   }
   .logo:hover {
     color: var(--accent);
   }
   .header-right {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-wrap: wrap;
+    flex-shrink: 0;
   }
   nav {
     display: flex;

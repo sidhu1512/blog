@@ -71,6 +71,10 @@ html, body {
 body {
   font-family: var(--font-body);
   background-color: var(--background);
+  background-image: var(--bg-image, none);
+  background-size: var(--bg-size, auto);
+  background-repeat: var(--bg-repeat, no-repeat);
+  background-position: var(--bg-position, center);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   line-height: 1.75;
