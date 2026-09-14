@@ -101,7 +101,7 @@ function getAssetUrl(path?: string) {
   .hero h1 {
     margin-top: 0;
     margin-bottom: 0.75rem;
-    font-size: 3.2rem;
+    font-size: clamp(2.2rem, 6.5vw, 3.2rem);
   }
   .subtitle {
     font-size: 1.1rem;
@@ -138,6 +138,14 @@ function getAssetUrl(path?: string) {
     padding: 1.5rem 1.75rem;
     text-decoration: none;
     color: inherit;
+  }
+  @media (max-width: 640px) {
+    .post-row-link {
+      padding: 1.1rem 1rem;
+    }
+    .row-title {
+      font-size: 1.2rem;
+    }
   }
   .row-meta {
     display: flex;

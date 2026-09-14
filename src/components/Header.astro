@@ -110,6 +110,45 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
       display: none;
     }
   }
+
+  /* ---- Small screens: keep the header on one line, no overflow ---- */
+  @media (max-width: 768px) {
+    .header-container {
+      padding: 0 1rem;
+    }
+    .header-right {
+      gap: 0.4rem;
+    }
+    .logo {
+      font-size: 1.4rem;
+    }
+    nav {
+      gap: 0.1rem;
+    }
+    .nav-btn {
+      font-size: 0.85rem;
+      padding: 0.35rem 0.55rem;
+    }
+    .search-trigger {
+      padding: 0.35rem 0.5rem;
+    }
+  }
+  /* Tiny phones: drop the external link + separators, shrink further */
+  @media (max-width: 480px) {
+    .header-right .divider {
+      display: none;
+    }
+    .nav a.nav-btn:first-child {
+      display: none; /* Portfolio links out — drop it on tiny screens */
+    }
+    .nav-btn {
+      padding: 0.35rem 0.45rem;
+      font-size: 0.82rem;
+    }
+    .logo {
+      font-size: 1.25rem;
+    }
+  }
   .nav-btn {
     text-decoration: none;
     color: var(--muted-foreground);

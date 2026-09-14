@@ -115,7 +115,7 @@ function getAssetUrl(path?: string) {
   .hero h1 {
     margin-top: 0;
     margin-bottom: 0.75rem;
-    font-size: 3.5rem;
+    font-size: clamp(2.4rem, 7vw, 3.5rem);
   }
   .subtitle {
     font-size: 1.2rem;
@@ -225,6 +225,28 @@ function getAssetUrl(path?: string) {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      margin-bottom: 2.25rem;
+    }
+    .card-content {
+      padding: 1.1rem 1rem;
+    }
+    .card-title {
+      font-size: 1.25rem;
+    }
+    .card-desc {
+      font-size: 0.9rem;
+    }
+    .card-image-wrapper {
+      height: 190px;
+    }
+    .pagination {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+    }
   }
 
   .card-meta {

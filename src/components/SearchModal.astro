@@ -43,6 +43,11 @@
     justify-content: center;
     padding: 12vh 1rem 1rem;
   }
+  @media (max-width: 480px) {
+    .search-modal {
+      padding-top: 8vh;
+    }
+  }
   .search-modal.active {
     display: flex;
   }
@@ -164,6 +169,11 @@
     font-size: 0.75rem;
     flex-shrink: 0;
   }
+  @media (max-width: 640px) {
+    .search-footer {
+      display: none; /* keyboard hints are meaningless on touch */
+    }
+  }
   .search-footer kbd {
     margin-right: 0.25rem;
   }
@@ -238,8 +248,9 @@
     async function runSearch(query: string) {
       const pf = await loadPagefind();
       if (!pf) {
-        resultsEl!.innerHTML =
-          '<div class="search-meta">Search index not available. Run <code>npm run build</code> to generate it.</div>';
+        resultsEl!.innerHTML = import.meta.env.DEV
+          ? '<div class="search-meta">Search runs on the production build (<code>npm run build &amp;&amp; npm run preview</code>) — not available in <code>astro dev</code>.</div>'
+          : '<div class="search-meta">Search index failed to load — try a hard refresh (Ctrl+Shift+R).</div>';
         return;
       }
       const search = await pf.search(query);

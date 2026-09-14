@@ -93,6 +93,23 @@ main {
   }
 }
 
+/* Small screens: tighter padding, fix iOS auto-zoom on focus (>=16px) */
+@media (max-width: 640px) {
+  main {
+    padding: 1.5rem 1rem 4rem;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Scroll-margin so sticky-header doesn't cover anchored headings */
+html {
+  scroll-padding-top: 5.5rem;
+}
+
 /* Links */
 a {
   color: var(--foreground);
@@ -117,16 +134,22 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1rem;
 }
 
-h1 { font-size: 3rem; letter-spacing: -0.02em; }
-h2 { font-size: 2.1rem; letter-spacing: -0.01em; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; font-family: var(--font-body); font-weight: 600; }
+h1 { font-size: clamp(2rem, 5.5vw, 3rem); letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.5rem, 3.6vw, 2.1rem); letter-spacing: -0.01em; }
+h3 { font-size: clamp(1.25rem, 2.8vw, 1.5rem); }
+h4 { font-size: 1.15rem; font-family: var(--font-body); font-weight: 600; }
 
 p {
   margin-bottom: 1.5rem;
   color: var(--text-body);
   font-size: 1.05rem;
   line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  p {
+    font-size: 1rem;
+  }
 }
 
 strong, b {
@@ -270,6 +293,27 @@ pre {
   overflow-x: auto;
   margin-bottom: 2rem;
   box-shadow: var(--shadow-card);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smaller code + tighter media blocks on phones */
+@media (max-width: 640px) {
+  pre,
+  .code-wrapper pre {
+    padding: 0.9rem 0.9rem !important;
+    font-size: 0.85rem;
+  }
+  pre code {
+    font-size: 0.85em;
+  }
+  .content-body img {
+    margin: 1.75rem auto;
+    padding: 0.5rem;
+  }
+  blockquote.callout {
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
 }
 
 /* Shiki Dual-Theme Rendering for Dark & Light modes */
@@ -387,11 +431,13 @@ blockquote:not(.callout) p:last-child {
 /* Tables */
 .content-body table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
   margin: 2rem 0;
   font-size: 0.95rem;
   overflow-x: auto;
   display: block;
+  -webkit-overflow-scrolling: touch;
 }
 
 .content-body th,
@@ -399,6 +445,14 @@ blockquote:not(.callout) p:last-child {
   padding: 0.75rem 1rem;
   border: 1px solid var(--border);
   text-align: left;
+}
+
+@media (max-width: 640px) {
+  .content-body th,
+  .content-body td {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.88rem;
+  }
 }
 
 .content-body th {

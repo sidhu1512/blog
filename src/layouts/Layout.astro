@@ -52,7 +52,7 @@ const rssUrl = `${normalizedBase}rss.xml`;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -90,7 +90,20 @@ const rssUrl = `${normalizedBase}rss.xml`;
     />
   </head>
   <body>
-    <Header />
+    <!-- Astro's view-transition swap copies the incoming page's <html> attributes,
+         which drops data-theme. Re-apply the stored theme right after every swap. -->
+    <script>
+      document.addEventListener('astro:after-swap', () => {
+        let theme: string | null = null;
+        try {
+          theme = localStorage.getItem('theme');
+        } catch {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      });
+    </script>
     <main>
       <slot />
     </main>
@@ -99,16 +112,30 @@ const rssUrl = `${normalizedBase}rss.xml`;
     <SearchModal />
 
     <script>
-      // Delegated click handler for tag chips nested inside clickable cards
-      // (spans with data-tag-link inside <a> post cards)
-      document.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        const tagEl = target.closest('[data-tag-link]') as HTMLElement | null;
-        if (!tagEl || !tagEl.dataset.tagLink) return;
-        e.preventDefault();
-        e.stopPropagation();
-        window.location.href = tagEl.dataset.tagLink;
-      });
+      // Delegated handler for tag chips nested inside clickable post cards.
+      // Runs in the CAPTURE phase so it wins the race against the card link's
+      // own document-level listener (the Astro ClientRouter intercepts normal
+      // clicks and soft-navigates), then soft-navigates to the tag page.
+      let astroNavigate: ((href: string) => void) | undefined;
+      try {
+        // Resolve lazily at click time; cached import keeps it cheap
+        import('astro:transitions/client').then((m) => (astroNavigate = m.navigate));
+      } catch {}
+      document.addEventListener(
+        'click',
+        (e) => {
+          const tagEl = (e.target as HTMLElement).closest('[data-tag-link]') as HTMLElement | null;
+          if (!tagEl || !tagEl.dataset.tagLink) return;
+          e.preventDefault();
+          e.stopPropagation();
+          if (astroNavigate) {
+            astroNavigate(tagEl.dataset.tagLink);
+          } else {
+            window.location.assign(tagEl.dataset.tagLink);
+          }
+        },
+        true
+      );
     </script>
   </body>
 </html>
