@@ -297,8 +297,9 @@ import skins from '../theme-skins/skins.json';
 
   function init() {
     applySkin(stored() ?? null);
-    if (window.__themePickerBound) return;
-    window.__themePickerBound = true;
+    const picker = document.querySelector('.theme-picker');
+    if (picker?.dataset.bound === 'true') return;
+    if (picker) picker.dataset.bound = 'true';
 
     const dice = document.getElementById('theme-dice');
     const diceBtn = document.getElementById('theme-dice-btn');

@@ -72,8 +72,8 @@
 <script>
   function initThemeToggle() {
     const toggleBtn = document.getElementById('theme-toggle');
-    if (!toggleBtn || (toggleBtn as any).__themeBound) return;
-    (toggleBtn as any).__themeBound = true;
+    if (!toggleBtn || toggleBtn.dataset.bound === 'true') return;
+    toggleBtn.dataset.bound = 'true';
 
     toggleBtn.addEventListener('click', () => {
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';

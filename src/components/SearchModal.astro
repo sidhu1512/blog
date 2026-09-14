@@ -271,6 +271,9 @@
         .map((r, i) => {
           let url = r.meta?.url ?? r.url ?? '#';
           if (url && !url.startsWith('http') && !url.startsWith('#')) {
+            if (url.startsWith(absBase)) {
+              url = url.slice(absBase.length);
+            }
             url = `${absBase}${url.startsWith('/') ? url : '/' + url}`;
           }
           const title = r.meta?.title ?? 'Untitled';

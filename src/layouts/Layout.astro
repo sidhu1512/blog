@@ -161,10 +161,7 @@ const rssUrl = `${normalizedBase}rss.xml`;
       // own document-level listener (the Astro ClientRouter intercepts normal
       // clicks and soft-navigates), then soft-navigates to the tag page.
       let astroNavigate: ((href: string) => void) | undefined;
-      try {
-        // Resolve lazily at click time; cached import keeps it cheap
-        import('astro:transitions/client').then((m) => (astroNavigate = m.navigate));
-      } catch {}
+      import('astro:transitions/client').then((m) => (astroNavigate = m.navigate)).catch(() => {});
       document.addEventListener(
         'click',
         (e) => {
