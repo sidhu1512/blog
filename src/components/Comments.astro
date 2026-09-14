@@ -86,11 +86,15 @@ const configured = Boolean(GISCUS_REPO && GISCUS_REPO_ID && GISCUS_CATEGORY_ID);
   // Delegated document-level listener survives view-transition DOM swaps.
   document.addEventListener('click', (e) => {
     if ((e.target as HTMLElement).closest?.('#theme-toggle')) {
-      const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
-      iframe?.contentWindow?.postMessage(
-        { giscus: { setConfig: { theme: giscusTheme() } } },
-        'https://giscus.app'
-      );
+      try {
+        const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+        if (iframe?.contentWindow) {
+          iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: giscusTheme() } } },
+            'https://giscus.app'
+          );
+        }
+      } catch {}
     }
   });
 

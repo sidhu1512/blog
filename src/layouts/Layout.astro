@@ -30,7 +30,6 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ImageLightbox from '../components/ImageLightbox.astro';
 import SearchModal from '../components/SearchModal.astro';
-import MobileBottomBar from '../components/MobileBottomBar.astro';
 
 export interface Props {
   title: string;
@@ -79,6 +78,19 @@ const rssUrl = `${normalizedBase}rss.xml`;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      window.addEventListener('error', (e) => {
+        if (e.message?.includes('startTime') || e.message?.includes('reportAllChanges')) {
+          e.preventDefault();
+          return true;
+        }
+      });
+      window.addEventListener('unhandledrejection', (e) => {
+        if (e.reason?.message?.includes('startTime') || e.reason?.message?.includes('reportAllChanges')) {
+          e.preventDefault();
+        }
+      });
+    </script>
     
     <!-- Theme initialization script (runs immediately to prevent FOUC) -->
     <script is:inline>
@@ -153,7 +165,6 @@ const rssUrl = `${normalizedBase}rss.xml`;
     <Footer />
     <ImageLightbox />
     <SearchModal />
-    <MobileBottomBar />
 
     <script>
       // Delegated handler for tag chips nested inside clickable post cards.
