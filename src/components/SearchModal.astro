@@ -217,12 +217,21 @@
     const input = document.getElementById('search-input') as HTMLInputElement | null;
     const resultsEl = document.getElementById('search-results');
     if (!modal || !input || !resultsEl) return;
-    if ((modal as any).__searchBound) return;
-    (modal as any).__searchBound = true;
 
+    let selectedIndex = -1;
     let pagefind: any = null;
     let searchDebounce: ReturnType<typeof setTimeout> | null = null;
-    let selectedIndex = -1;
+
+    // Reset modal state on page transition (Astro view transitions reuse DOM)
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    input.value = '';
+    resultsEl.innerHTML = '';
+    selectedIndex = -1;
+
+    if (modal.dataset.bound === 'true') return;
+    modal.dataset.bound = 'true';
 
     async function loadPagefind() {
       if (pagefind) return pagefind;
@@ -292,7 +301,7 @@
         label: 'Toggle light / dark mode',
         hint: '',
         run: () => {
-          const btn = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+          const btn = (document.querySelector('.floating-dock .theme-toggle') || document.querySelector('.theme-toggle')) as HTMLButtonElement | null;
           btn?.click();
         },
       },
@@ -301,7 +310,7 @@
         label: 'Roll a random theme',
         hint: '',
         run: () => {
-          const dice = document.getElementById('theme-dice') as HTMLButtonElement | null;
+          const dice = (document.querySelector('.skin-dice') || document.getElementById('theme-dice')) as HTMLButtonElement | null;
           dice?.click();
         },
       },
@@ -447,9 +456,10 @@
       }
     });
 
-    // Wire the header search button (fresh node on every page)
-    const trigger = document.getElementById('search-trigger');
-    trigger?.addEventListener('click', () => openModal());
+    // Wire all search trigger buttons (fresh nodes on every page)
+    document.querySelectorAll('.search-trigger').forEach((btn) => {
+      btn.addEventListener('click', () => openModal());
+    });
 
     // Global keyboard shortcuts — bound once for the whole session
     if (!(window as any).__searchKeysBound) {

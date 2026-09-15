@@ -30,6 +30,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ImageLightbox from '../components/ImageLightbox.astro';
 import SearchModal from '../components/SearchModal.astro';
+import FloatingDock from '../components/FloatingDock.astro';
 
 export interface Props {
   title: string;
@@ -165,6 +166,7 @@ const rssUrl = `${normalizedBase}rss.xml`;
     <Footer />
     <ImageLightbox />
     <SearchModal />
+    <FloatingDock />
 
     <script>
       // Delegated handler for tag chips nested inside clickable post cards.

@@ -3,9 +3,14 @@
  * ThemeToggle Component
  * Toggles between Dark and Light themes with persistent state in localStorage.
  */
+interface Props {
+  id?: string;
+  class?: string;
+}
+const { id = 'theme-toggle', class: className = '' } = Astro.props;
 ---
 
-<button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle light/dark theme" title="Toggle theme">
+<button id={id} class={`theme-toggle-btn ${className}`} aria-label="Toggle light/dark theme" title="Toggle theme">
   <!-- Sun icon (shown when in dark mode, click to switch to light) -->
   <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="5"></circle>
@@ -42,8 +47,8 @@
   }
   @media (max-width: 480px) {
     .theme-toggle-btn {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
     }
   }
 
@@ -71,16 +76,17 @@
 
 <script>
   function initThemeToggle() {
-    const toggleBtn = document.getElementById('theme-toggle');
-    if (!toggleBtn || toggleBtn.dataset.bound === 'true') return;
-    toggleBtn.dataset.bound = 'true';
+    document.querySelectorAll('.theme-toggle-btn').forEach((btn) => {
+      if (btn.dataset.bound === 'true') return;
+      btn.dataset.bound = 'true';
 
-    toggleBtn.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
+      btn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
     });
   }
 

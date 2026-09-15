@@ -1,0 +1,569 @@
+---
+import skins from '../theme-skins/skins.json';
+const base = import.meta.env.BASE_URL;
+const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+---
+
+<aside class="floating-dock" data-base={normalizedBase} aria-label="Page actions and display settings">
+  <!-- QR Code Share Button -->
+  <button 
+    class="dock-btn site-share__btn" 
+    type="button" 
+    aria-expanded="false" 
+    aria-controls="share-popover" 
+    aria-label="Share this page via QR code" 
+    title="Share via QR Code"
+  >
+    <svg class="dock-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+      </g>
+      <g fill="currentColor">
+        <rect x="16.5" y="7.5" width="2" height="2" rx="0.5"/>
+        <rect x="7.5" y="16.5" width="2" height="2" rx="0.5"/>
+        <rect x="13" y="13" width="2" height="2" rx="0.5"/>
+        <rect x="17" y="15" width="2" height="2" rx="0.5"/>
+        <rect x="15" y="17" width="2" height="2" rx="0.5"/>
+        <rect x="19" y="13" width="2" height="2" rx="0.5"/>
+      </g>
+    </svg>
+  </button>
+
+  <!-- Dice Theme Randomizer Button -->
+  <button 
+    class="dock-btn skin-dice" 
+    type="button" 
+    aria-label="Surprise theme" 
+    title="Surprise me with a random theme"
+  >
+    <svg class="dock-icon skin-dice__face" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <rect x="3" y="3" width="18" height="18" rx="4.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="8.2" cy="8.2" r="1.6" fill="currentColor"/>
+      <circle cx="15.8" cy="8.2" r="1.6" fill="currentColor"/>
+      <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+      <circle cx="8.2" cy="15.8" r="1.6" fill="currentColor"/>
+      <circle cx="15.8" cy="15.8" r="1.6" fill="currentColor"/>
+    </svg>
+  </button>
+
+  <!-- Light / Dark Mode Toggle Button -->
+  <button 
+    class="dock-btn theme-toggle" 
+    type="button" 
+    aria-label="Toggle dark/light mode" 
+    title="Toggle dark/light mode"
+  >
+    <svg class="dock-icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M20.2 13.65A8.5 8.5 0 0 1 10.35 3.8a8.5 8.5 0 1 0 9.85 9.85Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    </svg>
+    <svg class="dock-icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="4.25" fill="none" stroke="currentColor" stroke-width="2"/>
+      <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="12" y1="2.75" x2="12" y2="4.9"/>
+        <line x1="12" y1="19.1" x2="12" y2="21.25"/>
+        <line x1="2.75" y1="12" x2="4.9" y2="12"/>
+        <line x1="19.1" y1="12" x2="21.25" y2="12"/>
+        <line x1="5.4" y1="5.4" x2="6.9" y2="6.9"/>
+        <line x1="17.1" y1="17.1" x2="18.6" y2="18.6"/>
+        <line x1="5.4" y1="18.6" x2="6.9" y2="17.1"/>
+        <line x1="17.1" y1="6.9" x2="18.6" y2="5.4"/>
+      </g>
+    </svg>
+  </button>
+
+  <!-- QR Share Popover -->
+  <div class="site-share__popover" id="share-popover" hidden>
+    <div class="popover-header">
+      <span class="popover-title">Scan QR</span>
+      <div class="popover-actions">
+        <button class="action-icon-btn popover-copy" type="button" aria-label="Copy page link" title="Copy link">
+          <svg class="copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <svg class="check-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: none; color: var(--accent, #10b981);">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+        <button class="action-icon-btn popover-close" type="button" aria-label="Close popover" title="Close">&times;</button>
+      </div>
+    </div>
+    <div class="qr-canvas-frame">
+      <canvas class="site-share__qr" role="img" aria-label="QR code linking to this page"></canvas>
+    </div>
+  </div>
+
+  <!-- Non-intrusive Toast for Theme Change -->
+  <div id="theme-toast" class="theme-toast" aria-live="polite" hidden></div>
+</aside>
+
+<style>
+  .floating-dock {
+    position: fixed;
+    right: 1.25rem;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    z-index: 95;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    pointer-events: none;
+  }
+
+  .dock-btn {
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: var(--foreground, #ededed);
+    background: color-mix(in srgb, var(--surface, #18181b) 78%, transparent);
+    border: 1px solid color-mix(in srgb, var(--foreground, #fff) 18%, transparent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    outline: none;
+  }
+
+  .dock-btn:focus-visible {
+    outline: 2px solid var(--accent, #eab308);
+    outline-offset: 2px;
+  }
+
+  .dock-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent, #eab308);
+    color: var(--accent, #eab308);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .dock-btn:active {
+    transform: translateY(0);
+  }
+
+  .site-share__btn {
+    border-radius: 12px;
+  }
+
+  .skin-dice {
+    border-radius: 12px;
+  }
+
+  .theme-toggle {
+    border-radius: 50%;
+  }
+
+  .dock-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: block;
+  }
+
+  /* Sun/Moon toggle visibility */
+  .theme-toggle__icon--sun {
+    display: none;
+  }
+  .theme-toggle__icon--moon {
+    display: block;
+  }
+
+  :global(html[data-theme="dark"]) .theme-toggle__icon--sun {
+    display: block;
+  }
+  :global(html[data-theme="dark"]) .theme-toggle__icon--moon {
+    display: none;
+  }
+
+  /* Dice roll animation */
+  @keyframes skin-dice-roll {
+    0% { transform: rotate(0deg) scale(1); }
+    45% { transform: rotate(210deg) scale(0.82); }
+    80% { transform: rotate(335deg) scale(1.08); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  .skin-dice.is-rolling .skin-dice__face {
+    animation: skin-dice-roll 0.55s cubic-bezier(0.3, 0.7, 0.3, 1);
+  }
+
+  /* QR Share Popover */
+  .site-share__popover[hidden] {
+    display: none !important;
+  }
+
+  .site-share__popover {
+    pointer-events: auto;
+    position: fixed;
+    right: 1.25rem;
+    bottom: calc(15rem + env(safe-area-inset-bottom, 0px));
+    z-index: 96;
+    width: auto;
+    min-width: 176px;
+    padding: 0.75rem;
+    background: var(--surface-raised, #202024);
+    color: var(--foreground, #ededed);
+    border: 1px solid var(--border, #27272a);
+    border-radius: 14px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: popover-fade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes popover-fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .popover-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.1rem;
+  }
+
+  .popover-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted-foreground, #a1a1aa);
+  }
+
+  .popover-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .action-icon-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted-foreground, #a1a1aa);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 5px;
+    padding: 0;
+    transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  }
+
+  .action-icon-btn:hover {
+    color: var(--foreground, #ededed);
+    background: color-mix(in srgb, var(--foreground, #fff) 8%, transparent);
+    border-color: color-mix(in srgb, var(--foreground, #fff) 12%, transparent);
+  }
+
+  .popover-close {
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+
+  .qr-canvas-frame {
+    background: #ffffff;
+    padding: 0.4rem;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .site-share__qr {
+    width: 148px;
+    height: 148px;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  /* Toast notification */
+  .theme-toast {
+    position: fixed;
+    right: 4.8rem;
+    bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+    z-index: 97;
+    background: var(--surface-raised, #202024);
+    color: var(--foreground, #fff);
+    border: 1px solid var(--accent, #eab308);
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    white-space: nowrap;
+    animation: toast-in 0.25s ease forwards;
+    pointer-events: none;
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateX(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Small screens adjustments */
+  @media (max-width: 640px) {
+    .floating-dock {
+      right: 0.85rem;
+      bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+      gap: 0.45rem;
+    }
+    .dock-btn {
+      width: 42px;
+      height: 42px;
+    }
+    .site-share__popover {
+      right: 0.85rem;
+      bottom: calc(14rem + env(safe-area-inset-bottom, 0px));
+    }
+    .theme-toast {
+      right: 4.2rem;
+      bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+</style>
+
+<script>
+  import skins from '../theme-skins/skins.json';
+
+  const skinList = skins;
+  const defaultSkinId = 'rpn-garden';
+  const root = document.documentElement;
+
+  let qrcodeScriptPromise: Promise<void> | null = null;
+
+  function loadQrCodeLib(): Promise<void> {
+    if ((window as any).qrcode) return Promise.resolve();
+    if (!qrcodeScriptPromise) {
+      qrcodeScriptPromise = new Promise((resolve, reject) => {
+        const dockEl = document.querySelector('.floating-dock') as HTMLElement | null;
+        const basePath = dockEl?.dataset.base || '/';
+        const s = document.createElement('script');
+        s.src = `${basePath}scripts/qrcode.js`;
+        s.onload = () => resolve();
+        s.onerror = (err) => reject(err);
+        document.head.appendChild(s);
+      });
+    }
+    return qrcodeScriptPromise;
+  }
+
+  function renderQrCode(url: string, canvas: HTMLCanvasElement) {
+    try {
+      const qr = (window as any).qrcode(0, 'M');
+      qr.addData(url);
+      qr.make();
+      const count = qr.getModuleCount();
+      const quiet = 4;
+      const cells = count + quiet * 2;
+      const scale = 10;
+      const px = cells * scale;
+      canvas.width = px;
+      canvas.height = px;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, px, px);
+      ctx.fillStyle = '#111111';
+      for (let r = 0; r < count; r++) {
+        for (let c = 0; c < count; c++) {
+          if (qr.isDark(r, c)) {
+            ctx.fillRect((c + quiet) * scale, (r + quiet) * scale, scale, scale);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('QR rendering error:', e);
+    }
+  }
+
+  function showThemeToast(skinName: string) {
+    const toast = document.getElementById('theme-toast');
+    if (!toast) return;
+    toast.textContent = `Theme: ${skinName}`;
+    toast.hidden = false;
+    
+    const timer = (toast as any)._timer;
+    if (timer) clearTimeout(timer);
+    (toast as any)._timer = setTimeout(() => {
+      toast.hidden = true;
+    }, 2400);
+  }
+
+  function applySkin(id: string, notify = false) {
+    if (id === defaultSkinId || !id) {
+      root.removeAttribute('data-skin');
+    } else {
+      root.setAttribute('data-skin', id);
+    }
+
+    try {
+      localStorage.setItem('theme-skin', id);
+    } catch {}
+
+    // Sync any desktop dropdown if present
+    document.querySelectorAll<HTMLSelectElement>('.theme-select').forEach((sel) => {
+      sel.value = id;
+    });
+
+    const skinObj = skinList.find((s) => s.id === id);
+    const skinName = skinObj ? skinObj.name : 'RPN Garden';
+
+    if (notify) {
+      showThemeToast(skinName);
+    }
+  }
+
+  function toggleTheme() {
+    const current = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', current);
+    try {
+      localStorage.setItem('theme', current);
+    } catch {}
+  }
+
+  function setupFloatingDock() {
+    const dock = document.querySelector('.floating-dock');
+    if (!dock) return;
+
+    // QR Share
+    const shareBtn = dock.querySelector('.site-share__btn') as HTMLButtonElement | null;
+    const popover = dock.querySelector('#share-popover') as HTMLElement | null;
+    const canvas = dock.querySelector('.site-share__qr') as HTMLCanvasElement | null;
+    const copyBtn = dock.querySelector('.popover-copy') as HTMLButtonElement | null;
+    const closeBtn = dock.querySelector('.popover-close') as HTMLButtonElement | null;
+
+    function openQrPopover() {
+      if (!popover || !shareBtn) return;
+      const url = window.location.href;
+      popover.hidden = false;
+      shareBtn.setAttribute('aria-expanded', 'true');
+
+      if (canvas) {
+        loadQrCodeLib().then(() => {
+          renderQrCode(url, canvas);
+        }).catch((err) => {
+          console.error('QR code lib load failed:', err);
+        });
+      }
+    }
+
+    function closeQrPopover() {
+      if (!popover || !shareBtn) return;
+      popover.hidden = true;
+      shareBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    if (shareBtn && popover) {
+      shareBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (popover.hidden) {
+          openQrPopover();
+        } else {
+          closeQrPopover();
+        }
+      };
+    }
+
+    if (closeBtn) {
+      closeBtn.onclick = (e) => {
+        e.stopPropagation();
+        closeQrPopover();
+      };
+    }
+
+    if (copyBtn) {
+      copyBtn.onclick = (e) => {
+        e.stopPropagation();
+        const copyIcon = copyBtn.querySelector('.copy-icon') as HTMLElement | null;
+        const checkIcon = copyBtn.querySelector('.check-icon') as HTMLElement | null;
+        const done = () => {
+          if (copyIcon) copyIcon.style.display = 'none';
+          if (checkIcon) checkIcon.style.display = 'block';
+          setTimeout(() => {
+            if (copyIcon) copyIcon.style.display = 'block';
+            if (checkIcon) checkIcon.style.display = 'none';
+          }, 2000);
+        };
+        const url = window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(done).catch(done);
+        } else {
+          done();
+        }
+      };
+    }
+
+    // Dismiss popover on Outside click or Escape
+    document.addEventListener('click', (e) => {
+      if (popover && !popover.hidden && !dock.contains(e.target as Node)) {
+        closeQrPopover();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && popover && !popover.hidden) {
+        closeQrPopover();
+        shareBtn?.focus();
+      }
+    });
+
+    // Theme Randomizer Dice
+    const diceBtn = dock.querySelector('.skin-dice') as HTMLButtonElement | null;
+    if (diceBtn) {
+      diceBtn.onclick = () => {
+        const currentSkin = root.getAttribute('data-skin') || defaultSkinId;
+        const choices = skinList.map((s) => s.id).filter((id) => id !== currentSkin);
+        const nextSkin = choices[Math.floor(Math.random() * choices.length)] || defaultSkinId;
+
+        // Animate dice roll
+        diceBtn.classList.remove('is-rolling');
+        void diceBtn.offsetWidth;
+        diceBtn.classList.add('is-rolling');
+
+        // Apply skin smoothly without any text flicker!
+        applySkin(nextSkin, true);
+
+        setTimeout(() => {
+          diceBtn.classList.remove('is-rolling');
+        }, 550);
+      };
+    }
+
+    // Light / Dark Mode Toggle
+    const themeBtn = dock.querySelector('.theme-toggle') as HTMLButtonElement | null;
+    if (themeBtn) {
+      themeBtn.onclick = () => {
+        toggleTheme();
+      };
+    }
+  }
+
+  setupFloatingDock();
+  document.addEventListener('astro:page-load', setupFloatingDock);
+</script>

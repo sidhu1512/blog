@@ -1,13 +1,7 @@
 ---
 /**
- * ThemePicker — 30 community-style "skins" with a dice button.
- * Mirrors the mechanism of deut-erium.github.io: the browser holds a
- * `data-skin` attribute on <html> and a scoped stylesheet (themes.css)
- * repaints the blog. The dice picks a random skin that differs from the
- * current one; a companion <select> browses every skin by name.
- *
- * Persistence: localStorage["theme-skin"]. "Default" (no attribute)
- * keeps the original light/dark design.
+ * ThemePicker — Curated deuterium-grade visual themes dropdown.
+ * Updates data-skin on <html> without layout shifts or text flicker.
  */
 interface Props {
   position?: 'top' | 'bottom';
@@ -17,43 +11,21 @@ import skins from '../theme-skins/skins.json';
 ---
 
 <div class="theme-picker" data-position={position}>
-  <button id="theme-dice" class="theme-dice" type="button" aria-label="Random theme" title="Surprise me with a random theme">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="4"></rect>
-      <circle cx="8.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
-      <circle cx="15.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
-      <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"></circle>
-      <circle cx="8.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
-      <circle cx="15.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
-    </svg>
-  </button>
-
-  <details class="theme-menu" id="theme-menu">
-    <summary class="theme-menu-summary" aria-label="Choose a theme">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <details class="theme-menu">
+    <summary class="theme-menu-summary" aria-label="Choose a theme" title="Visual Themes">
+      <svg class="theme-menu-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12 2a10 10 0 1 0 10 10"></path>
         <path d="M12 2a10 10 0 0 1 10 10"></path>
         <path d="M2 12h10"></path>
       </svg>
-      <span class="theme-menu-text">Theme</span>
-      <span class="theme-current" id="theme-current" aria-live="polite"></span>
+      <span class="theme-menu-label">Theme</span>
+      <span class="theme-current-badge" aria-live="polite">RPN Garden</span>
     </summary>
     <div class="theme-menu-panel">
-      <select id="theme-select" class="theme-select" aria-label="Choose a theme">
-        <option value="">Default</option>
+      <label class="theme-panel-label" for="header-theme-select">Select visual skin</label>
+      <select id="header-theme-select" class="theme-select" aria-label="Choose a theme">
         {skins.map((s) => <option value={s.id}>{s.name}</option>)}
       </select>
-      <button id="theme-dice-btn" class="theme-dice-btn" type="button">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="3" width="18" height="18" rx="4"></rect>
-          <circle cx="8.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
-          <circle cx="15.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"></circle>
-          <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"></circle>
-          <circle cx="8.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
-          <circle cx="15.5" cy="15.5" r="1.1" fill="currentColor" stroke="none"></circle>
-        </svg>
-        Surprise me
-      </button>
     </div>
   </details>
 </div>
@@ -62,68 +34,34 @@ import skins from '../theme-skins/skins.json';
   .theme-picker {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
     flex-shrink: 0;
-    min-width: 300px;
-  }
-  @media (max-width: 640px) {
-    .theme-picker {
-      min-width: 0;
-    }
-  }
-  .theme-dice {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--muted-foreground);
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 0;
-  }
-  .theme-dice:hover {
-    color: var(--foreground);
-    border-color: var(--accent);
-    background: var(--surface-raised);
-    transform: translateY(-1px);
-  }
-  .theme-dice.is-rolling svg {
-    animation: theme-dice-roll 0.5s ease-in-out;
-  }
-  .theme-dice-btn.is-rolling svg {
-    animation: theme-dice-roll 0.5s ease-in-out;
-  }
-  @keyframes theme-dice-roll {
-    0% { transform: rotate(0deg) scale(1); }
-    30% { transform: rotate(180deg) scale(0.88); }
-    100% { transform: rotate(360deg) scale(1); }
   }
 
   .theme-menu {
     position: relative;
   }
+
   .theme-menu-summary {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--muted-foreground);
     height: 36px;
-    padding: 0 0.75rem;
+    padding: 0 0.65rem;
     border-radius: 8px;
     cursor: pointer;
     list-style: none;
-    transition: all 0.2s ease;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
     user-select: none;
+    font-size: 0.85rem;
+    font-family: var(--font-body), system-ui, sans-serif;
   }
   .theme-menu-summary::-webkit-details-marker {
     display: none;
   }
+
   .theme-menu-summary:hover {
     color: var(--foreground);
     border-color: var(--accent);
@@ -133,192 +71,135 @@ import skins from '../theme-skins/skins.json';
     color: var(--foreground);
     border-color: var(--accent);
   }
-  .theme-current {
-    font-family: monospace;
+
+  .theme-menu-icon {
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  .theme-menu-label {
+    font-weight: 500;
+  }
+
+  .theme-current-badge {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.72rem;
-    letter-spacing: 0.02em;
-    max-width: 11rem;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+    padding: 0.12rem 0.45rem;
+    border-radius: 4px;
+    max-width: 7.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: inline-block;
   }
+
   .theme-menu-panel {
     position: absolute;
     right: 0;
     top: calc(100% + 0.5rem);
-    width: 240px;
+    width: 230px;
     z-index: 120;
-    background: var(--surface);
+    background: var(--surface-raised);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    box-shadow: var(--shadow-card);
+    gap: 0.45rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
-  .theme-picker[data-position="bottom"] .theme-menu-panel {
-    top: auto;
-    bottom: calc(100% + 0.5rem);
+
+  .theme-panel-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
   }
+
   .theme-select {
     width: 100%;
-    background: var(--background);
+    background: var(--surface);
     color: var(--foreground);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 0.5rem 0.6rem;
-    font-family: var(--font-body);
-    font-size: 0.9rem;
+    font-family: var(--font-body), system-ui, sans-serif;
+    font-size: 0.88rem;
     cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
   }
-  .theme-select:focus-visible,
-  .theme-dice:focus-visible,
-  .theme-dice-btn:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .theme-dice-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    background: var(--accent-muted);
-    color: var(--accent);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.5rem 0.75rem;
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .theme-dice-btn:hover {
+  .theme-select:focus-visible {
     border-color: var(--accent);
-    color: var(--foreground);
-  }
-
-  @media (max-width: 640px) {
-    .theme-menu-text {
-      display: none;
-    }
-    .theme-current {
-      display: none;
-    }
-    .theme-menu-summary {
-      padding: 0 0.6rem;
-    }
-  }
-  @media (max-width: 480px) {
-    .theme-picker {
-      gap: 0.3rem;
-    }
-    .theme-dice {
-      width: 34px;
-      height: 34px;
-    }
-    .theme-menu-summary {
-      height: 34px;
-      padding: 0 0.5rem;
-    }
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
 </style>
 
 <script>
-  const STORAGE_KEY = 'theme-skin';
+  import skins from '../theme-skins/skins.json';
+
+  const defaultSkinId = 'rpn-garden';
   const root = document.documentElement;
-  const ids = (root.dataset.skins || '').split(/\s+/).filter(Boolean);
 
-  const stored = () => {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return null;
-    }
-  };
-  const save = (id) => {
-    try {
-      if (id) localStorage.setItem(STORAGE_KEY, id);
-      else localStorage.removeItem(STORAGE_KEY);
-    } catch {}
-  };
+  function updateThemeUI(skinId: string) {
+    const sel = document.getElementById('header-theme-select') as HTMLSelectElement | null;
+    if (sel) sel.value = skinId;
 
-  const skinName = (id) => {
-    const option = document.querySelector(`#theme-select option[value="${id}"]`);
-    return option ? option.textContent : '';
-  };
-
-  function applySkin(id) {
-    const has = id && ids.includes(id);
-    if (has) root.setAttribute('data-skin', id);
-    else root.removeAttribute('data-skin');
-
-    const select = document.getElementById('theme-select');
-    if (select) select.value = has ? id : '';
-
-    const label = document.getElementById('theme-current');
-    if (label) label.textContent = has ? skinName(id) : 'Default';
+    const badge = document.querySelector('.theme-current-badge');
+    const skinObj = skins.find((s) => s.id === skinId);
+    const skinName = skinObj ? skinObj.name : 'RPN Garden';
+    if (badge) badge.textContent = skinName;
   }
 
-  function roll() {
-    const current = root.getAttribute('data-skin');
-    const choices = ids.filter((id) => id !== current);
-    if (choices.length === 0) return;
-    const pick = choices[Math.floor(Math.random() * choices.length)];
-    const dice = document.getElementById('theme-dice');
-    const diceBtn = document.getElementById('theme-dice-btn');
+  function initHeaderThemePicker() {
+    const select = document.getElementById('header-theme-select') as HTMLSelectElement | null;
+    const details = document.querySelector('.theme-menu') as HTMLDetailsElement | null;
 
-    // Leave the attribute untouched while rolling; flick the label with
-    // random names so the final pick still lands on a fresh value.
-    const label = document.getElementById('theme-current');
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const currentSkin = root.getAttribute('data-skin') || defaultSkinId;
+    updateThemeUI(currentSkin);
 
-    if (!reduced) {
-      if (dice) dice.classList.add('is-rolling');
-      if (diceBtn) diceBtn.classList.add('is-rolling');
-      const start = Date.now();
-      let i = 0;
-      const timer = setInterval(() => {
-        if (label) label.textContent = skinName(choices[i++ % choices.length]) || '...';
-        if (Date.now() - start >= 480) {
-          clearInterval(timer);
-          applySkin(pick);
-          save(pick);
-          if (dice) dice.classList.remove('is-rolling');
-          if (diceBtn) diceBtn.classList.remove('is-rolling');
-        }
-      }, 80);
-    } else {
-      applySkin(pick);
-      save(pick);
-    }
-  }
-
-  function init() {
-    applySkin(stored() ?? null);
-    const picker = document.querySelector('.theme-picker');
-    if (picker?.dataset.bound === 'true') return;
-    if (picker) picker.dataset.bound = 'true';
-
-    const dice = document.getElementById('theme-dice');
-    const diceBtn = document.getElementById('theme-dice-btn');
-    const select = document.getElementById('theme-select');
-
-    if (dice) dice.addEventListener('click', roll);
-    if (diceBtn) diceBtn.addEventListener('click', roll);
-
-    if (select) {
+    if (select && (select as any)._bound !== true) {
+      (select as any)._bound = true;
       select.addEventListener('change', () => {
-        const id = select.value || null;
-        save(id);
-        applySkin(id);
-        const details = document.getElementById('theme-menu');
+        const id = select.value;
+        if (id === defaultSkinId || !id) {
+          root.removeAttribute('data-skin');
+        } else {
+          root.setAttribute('data-skin', id);
+        }
+        try {
+          localStorage.setItem('theme-skin', id);
+        } catch {}
+        updateThemeUI(id);
         if (details) details.open = false;
+      });
+    }
+
+    // Dismiss details menu on outside click
+    if (!(window as any)._themeMenuOutsideBound) {
+      (window as any)._themeMenuOutsideBound = true;
+      document.addEventListener('click', (e) => {
+        const menu = document.querySelector('.theme-menu[open]') as HTMLDetailsElement | null;
+        if (menu && !menu.contains(e.target as Node)) {
+          menu.open = false;
+        }
       });
     }
   }
 
-  init();
-  document.addEventListener('astro:page-load', init);
+  initHeaderThemePicker();
+  document.addEventListener('astro:page-load', initHeaderThemePicker);
+
+  // Sync when skin changes from floating dock or other controls
+  const observer = new MutationObserver(() => {
+    const active = root.getAttribute('data-skin') || defaultSkinId;
+    updateThemeUI(active);
+  });
+  observer.observe(root, { attributes: true, attributeFilter: ['data-skin'] });
 </script>

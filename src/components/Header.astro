@@ -1,106 +1,234 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
 import ThemePicker from './ThemePicker.astro';
 
 const pathname = new URL(Astro.request.url).pathname;
 const base = import.meta.env.BASE_URL;
-// ensure base doesn't mess up matching
-const normalizedPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+
+// Ensure base and paths match cleanly without trailing slash quirks
+const normalizedPath = pathname.replace(/\/$/, '') || '/';
+const normalizedBase = base.replace(/\/$/, '') || '/';
+
+const isBlogActive = normalizedPath === normalizedBase;
+const isTopicsActive = normalizedPath === `${normalizedBase}/tags` || normalizedPath.startsWith(`${normalizedBase}/tags/`);
+const isAboutActive = normalizedPath === `${normalizedBase}/about`;
 ---
-<header class="header">
+<header class="header" id="site-header">
   <div class="header-container">
-    <a href="https://sidhu1512.github.io/blog/" class="logo">
-      Siddharth.
+    <!-- Brand Logo -->
+    <a href={base} class="logo" aria-label="Siddharth - Home">
+      <span class="logo-name">Siddharth</span><span class="logo-dot">.</span>
     </a>
-    <div class="header-right">
-      <nav>
-        <a href="https://sidhu1512.github.io/" class="nav-btn">Portfolio</a>
-        <a href={base} class={`nav-btn ${normalizedPath === normalizedBase ? 'active' : ''}`}>Blog</a>
-        <a href={`${normalizedBase}/tags`} class={`nav-btn ${normalizedPath === `${normalizedBase}/tags` ? 'active' : ''}`}>Topics</a>
-        <a href={`${normalizedBase}/about`} class={`nav-btn ${normalizedPath === `${normalizedBase}/about` ? 'active' : ''}`}>About</a>
+
+    <!-- Desktop Navigation & Controls (Visible >= 860px) -->
+    <div class="desktop-controls">
+      <nav class="desktop-nav" aria-label="Main Navigation">
+        <a href="https://sidhu1512.github.io/" class="nav-btn external-btn" target="_blank" rel="noopener noreferrer">
+          Portfolio
+          <svg class="external-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </a>
+        <a href={base} class={`nav-btn ${isBlogActive ? 'active' : ''}`}>Blog</a>
+        <a href={`${normalizedBase}/tags`} class={`nav-btn ${isTopicsActive ? 'active' : ''}`}>Topics</a>
+        <a href={`${normalizedBase}/about`} class={`nav-btn ${isAboutActive ? 'active' : ''}`}>About</a>
       </nav>
-      <div class="divider"></div>
-      <button id="search-trigger" class="search-trigger" aria-label="Search (Ctrl+K)" title="Search (Ctrl+K)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+      <div class="header-divider"></div>
+
+      <!-- Desktop Search Button -->
+      <button class="search-trigger desktop-search" aria-label="Search (Ctrl+K)" title="Search (Ctrl+K)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <span class="search-kbd">Ctrl K</span>
       </button>
-      <div class="divider"></div>
-      <ThemeToggle />
-      <ThemePicker />
+
+      <!-- Desktop Theme Skins (Dropdown + Dice) -->
+      <ThemePicker position="top" variant="dropdown" />
+    </div>
+
+    <!-- Mobile Action Buttons (Visible < 860px) -->
+    <div class="mobile-actions">
+      <!-- Mobile Search Button -->
+      <button class="icon-btn search-trigger mobile-search" aria-label="Search posts" title="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+
+      <!-- Mobile Menu Hamburger Button -->
+      <button 
+        id="mobile-menu-toggle" 
+        class="icon-btn mobile-menu-btn" 
+        type="button" 
+        aria-label="Toggle navigation menu" 
+        aria-expanded="false" 
+        aria-controls="mobile-drawer"
+      >
+        <span class="hamburger-box">
+          <span class="hamburger-line line-top"></span>
+          <span class="hamburger-line line-mid"></span>
+          <span class="hamburger-line line-bot"></span>
+        </span>
+      </button>
     </div>
   </div>
+
+  <!-- Mobile Dropdown Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+    <div class="mobile-drawer-content">
+      <nav class="mobile-nav-list" aria-label="Mobile Navigation">
+        <a href="https://sidhu1512.github.io/" class="mobile-nav-link external" target="_blank" rel="noopener noreferrer">
+          <span class="mobile-nav-title">Portfolio</span>
+          <span class="mobile-nav-meta">
+            <span class="external-domain">sidhu1512.github.io</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </span>
+        </a>
+        <a href={base} class={`mobile-nav-link ${isBlogActive ? 'active' : ''}`}>
+          <span class="mobile-nav-title">Blog</span>
+          {isBlogActive && <span class="active-indicator">Current</span>}
+        </a>
+        <a href={`${normalizedBase}/tags`} class={`mobile-nav-link ${isTopicsActive ? 'active' : ''}`}>
+          <span class="mobile-nav-title">Topics & Tags</span>
+          {isTopicsActive && <span class="active-indicator">Current</span>}
+        </a>
+        <a href={`${normalizedBase}/about`} class={`mobile-nav-link ${isAboutActive ? 'active' : ''}`}>
+          <span class="mobile-nav-title">About Siddharth</span>
+          {isAboutActive && <span class="active-indicator">Current</span>}
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Dimmed overlay when mobile drawer is open -->
+  <div id="mobile-backdrop" class="mobile-backdrop" aria-hidden="true"></div>
 </header>
 
 <style>
   .header {
     border-bottom: 1px solid var(--border);
-    padding: 0.75rem 0;
     position: sticky;
     top: 0;
     background: var(--header-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     z-index: 100;
     transition: background-color 0.25s ease, border-color 0.25s ease;
   }
+
   .header-container {
     max-width: 86rem;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 1.25rem;
+    height: 58px;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    flex-wrap: nowrap !important;
+    position: relative;
+    z-index: 102;
   }
-  @media (min-width: 1280px) {
+
+  @media (min-width: 1024px) {
     .header-container {
       padding: 0 2rem;
-      gap: 1.5rem;
+      height: 62px;
     }
   }
+
+  /* Logo */
   .logo {
     text-decoration: none;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-family: var(--font-body), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
     color: var(--foreground);
-    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
     flex-shrink: 0;
     white-space: nowrap;
+    letter-spacing: -0.02em;
+    user-select: none;
+    transition: color 0.2s ease;
   }
   .logo:hover {
     color: var(--accent);
   }
-  .header-right {
-    margin-left: auto;
+  .logo-dot {
+    color: var(--accent);
+    transition: color 0.2s ease;
+  }
+
+  /* Desktop Controls (>= 860px) */
+  .desktop-controls {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex-shrink: 1;
-    min-width: 0;
+    flex-shrink: 0;
   }
-  nav {
+
+  .desktop-nav {
     display: flex;
+    align-items: center;
     gap: 0.25rem;
-    flex-wrap: wrap;
   }
-  .divider {
+
+  .nav-btn {
+    text-decoration: none;
+    color: var(--muted-foreground);
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .nav-btn:hover {
+    color: var(--foreground);
+    background: var(--surface);
+  }
+  .nav-btn.active {
+    color: var(--foreground);
+    background: var(--surface);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .external-arrow {
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+  }
+  .nav-btn.external-btn:hover .external-arrow {
+    transform: translate(1px, -1px);
+    opacity: 1;
+  }
+
+  .header-divider {
     width: 1px;
     height: 20px;
     background: var(--border);
-    margin: 0 0.35rem;
+    margin: 0 0.25rem;
+    flex-shrink: 0;
   }
+
   .search-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--muted-foreground);
-    padding: 0.35rem 0.6rem;
+    padding: 0.35rem 0.65rem;
     border-radius: 8px;
     cursor: pointer;
     font-family: var(--font-body);
@@ -110,76 +238,309 @@ const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
   .search-trigger:hover {
     color: var(--foreground);
     border-color: var(--accent);
+    background: var(--surface-raised);
   }
   .search-kbd {
     font-family: monospace;
     font-size: 0.65rem;
     letter-spacing: 0.03em;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: var(--background);
+    border: 1px solid var(--border);
   }
-  @media (max-width: 640px) {
-    .search-kbd {
-      display: none;
+
+  /* Mobile Actions (< 860px) */
+  .mobile-actions {
+    display: none;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .icon-btn:hover,
+  .icon-btn:active {
+    color: var(--foreground);
+    border-color: var(--accent);
+    background: var(--surface-raised);
+  }
+
+  /* Hamburger Icon Animation */
+  .hamburger-box {
+    width: 18px;
+    height: 14px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .hamburger-line {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    transform-origin: center;
+  }
+  :global(.header.menu-open) .line-top {
+    transform: translateY(6px) rotate(45deg);
+  }
+  :global(.header.menu-open) .line-mid {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  :global(.header.menu-open) .line-bot {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+  :global(.header.menu-open) .mobile-menu-btn {
+    color: var(--foreground);
+    border-color: var(--accent);
+    background: var(--surface-raised);
+  }
+
+  /* Mobile Drawer */
+  .mobile-drawer {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.35);
+    z-index: 101;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  }
+  :global(.header.menu-open) .mobile-drawer {
+    max-height: 520px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-drawer-content {
+    padding: 1rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .mobile-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.96rem;
+    font-weight: 500;
+    color: var(--foreground);
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-nav-link:hover {
+    border-color: var(--accent);
+    background: var(--surface-raised);
+  }
+  .mobile-nav-link.active {
+    background: var(--accent-muted);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .mobile-nav-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--muted-foreground);
+    font-size: 0.78rem;
+  }
+  .external-domain {
+    font-family: monospace;
+    font-size: 0.75rem;
+    opacity: 0.75;
+  }
+
+  .active-indicator {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #0a0a0a;
+  }
+
+  /* Mobile Backdrop */
+  .mobile-backdrop {
+    display: none;
+    position: fixed;
+    top: 58px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  @media (min-width: 1024px) {
+    .mobile-backdrop {
+      top: 62px;
+    }
+  }
+  :global(.header.menu-open) .mobile-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Responsive Switching at 860px */
+  @media (max-width: 859px) {
+    .desktop-controls {
+      display: none !important;
+    }
+    .mobile-actions {
+      display: flex !important;
+    }
+    .mobile-drawer {
+      display: block !important;
+    }
+    .mobile-backdrop {
+      display: block !important;
+    }
+    .header-container {
+      padding: 0 1rem;
+    }
+    .logo {
+      font-size: 1.35rem;
     }
   }
 
-  /* ---- Small screens: keep the header on one line, no overflow ---- */
-  @media (max-width: 768px) {
-    .header {
-      padding: 0.5rem 0;
-    }
+  /* Small Mobile Adjustments (<= 400px, e.g. iPhone SE, iPhone 14) */
+  @media (max-width: 400px) {
     .header-container {
       padding: 0 0.75rem;
-      gap: 0.5rem;
     }
     .logo {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
     }
-    nav {
-      gap: 0.15rem;
+    .icon-btn {
+      width: 36px;
+      height: 36px;
     }
-    .nav-btn {
-      font-size: 0.8rem;
-      padding: 0.3rem 0.5rem;
+    .mobile-actions {
+      gap: 0.35rem;
     }
-    .divider {
-      height: 18px;
-      margin: 0 0.2rem;
-    }
-    .search-trigger {
-      padding: 0.3rem 0.5rem;
-    }
-  }
-  /* Tiny phones: drop the external link + separators, shrink further */
-  @media (max-width: 480px) {
-    .header-right .divider {
-      display: none;
-    }
-    .nav a.nav-btn:first-child {
-      display: none; /* Portfolio links out — drop it on tiny screens */
-    }
-    .nav-btn {
-      padding: 0.25rem 0.4rem;
-      font-size: 0.78rem;
-    }
-    .logo {
-      font-size: 1.15rem;
-    }
-    .search-trigger {
-      padding: 0.25rem 0.45rem;
-    }
-  }
-  .nav-btn {
-    text-decoration: none;
-    color: var(--muted-foreground);
-    font-size: 0.85rem;
-    font-weight: 500;
-    padding: 0.35rem 0.7rem;
-    border-radius: 6px;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .nav-btn:hover, .nav-btn.active {
-    color: var(--foreground);
-    background: var(--surface);
   }
 </style>
+
+<script>
+  function setupMobileMenu() {
+    const header = document.getElementById('site-header');
+    const toggleBtn = document.getElementById('mobile-menu-toggle');
+    const backdrop = document.getElementById('mobile-backdrop');
+    const drawer = document.getElementById('mobile-drawer');
+
+    if (!header || !toggleBtn) return;
+    if (toggleBtn.dataset.bound === 'true') return;
+    toggleBtn.dataset.bound = 'true';
+
+    function closeMenu() {
+      header.classList.remove('menu-open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      if (drawer) drawer.setAttribute('aria-hidden', 'true');
+      if (backdrop) backdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    function openMenu() {
+      header.classList.add('menu-open');
+      toggleBtn.setAttribute('aria-expanded', 'true');
+      if (drawer) drawer.setAttribute('aria-hidden', 'false');
+      if (backdrop) backdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = header.classList.contains('menu-open');
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    // Close when clicking the backdrop
+    backdrop?.addEventListener('click', () => {
+      closeMenu();
+    });
+
+    // Close when clicking any nav link in the mobile drawer
+    drawer?.querySelectorAll('.mobile-nav-link').forEach((link) => {
+      link.addEventListener('click', () => {
+        closeMenu();
+      });
+    });
+
+    // Close when clicking outside the header
+    document.addEventListener('click', (e) => {
+      if (!header.contains(e.target as Node)) {
+        closeMenu();
+      }
+    });
+
+    // Close when pressing Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+
+    // Close when resizing above mobile breakpoint
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 860 && header.classList.contains('menu-open')) {
+        closeMenu();
+      }
+    });
+  }
+
+  // Initialize on page load and Astro view-transition navigations
+  setupMobileMenu();
+  document.addEventListener('astro:page-load', setupMobileMenu);
+  document.addEventListener('astro:after-swap', () => {
+    const header = document.getElementById('site-header');
+    if (header) header.classList.remove('menu-open');
+  });
+</script>

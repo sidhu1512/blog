@@ -357,14 +357,14 @@ const socialImageUrl = coverImageUrl ?? ogImageUrl;
   /* Scroll to top FAB */
   .scroll-to-top {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    right: 1.25rem;
     background: var(--surface);
     color: var(--foreground);
     border: 1px solid var(--border);
     border-radius: 50%;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -372,7 +372,7 @@ const socialImageUrl = coverImageUrl ?? ogImageUrl;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 99;
+    z-index: 94;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   }
   .scroll-to-top.visible {
@@ -391,10 +391,6 @@ const socialImageUrl = coverImageUrl ?? ogImageUrl;
   @media(max-width: 960px) {
     .hidden-mobile { display: none; }
     .post-layout { gap: 0; }
-    .scroll-to-top {
-      bottom: 1rem;
-      right: 1rem;
-    }
   }
 
   /* ---- Phones: smaller hero, tap-safe FAB ---- */
@@ -407,10 +403,10 @@ const socialImageUrl = coverImageUrl ?? ogImageUrl;
       margin-bottom: 1.75rem;
     }
     .scroll-to-top {
-      bottom: 4.5rem; /* above mobile bottom bar */
-      right: 1rem;
-      width: 44px;
-      height: 44px;
+      bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      right: 0.85rem;
+      width: 42px;
+      height: 42px;
     }
   }
 </style>

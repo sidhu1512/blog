@@ -1,32 +1,121 @@
 [
-  { "id": "midnight-gold", "name": "Midnight Gold", "accent": "#eab308", "darkBase": "#0b0a07", "lightBase": "#fdfbf3", "font": "Instrument Serif", "effect": "glow" },
-  { "id": "aurora-shift", "name": "Aurora Shift", "accent": "#22d3ee", "darkBase": "#04121a", "lightBase": "#ecfeff", "font": "Space Grotesk", "effect": "aurora" },
-  { "id": "violet-veil", "name": "Violet Veil", "accent": "#a78bfa", "darkBase": "#0d0a1e", "lightBase": "#f5f3ff", "font": "Instrument Serif", "effect": "glow" },
-  { "id": "matrix-green", "name": "Matrix Green", "accent": "#4ade80", "darkBase": "#04120a", "lightBase": "#f0fdf4", "font": "JetBrains Mono", "effect": "scan" },
-  { "id": "deep-ocean", "name": "Deep Ocean", "accent": "#38bdf8", "darkBase": "#04101d", "lightBase": "#f0f9ff", "font": "Fraunces", "effect": "glow" },
-  { "id": "sakura", "name": "Sakura", "accent": "#f472b6", "darkBase": "#170915", "lightBase": "#fdf2f8", "font": "Cormorant Garamond", "effect": "wash" },
-  { "id": "golden-hour", "name": "Golden Hour", "accent": "#fbbf24", "darkBase": "#14100a", "lightBase": "#fffbeb", "font": "Instrument Serif", "effect": "glow" },
-  { "id": "emerald-moss", "name": "Emerald Moss", "accent": "#34d399", "darkBase": "#061410", "lightBase": "#ecfdf5", "font": "Cormorant Garamond", "effect": "none" },
-  { "id": "midnight-plum", "name": "Midnight Plum", "accent": "#a855f7", "darkBase": "#0e0513", "lightBase": "#faf5ff", "font": "Syne", "effect": "glow" },
-  { "id": "terminal", "name": "Terminal", "accent": "#a3e635", "darkBase": "#0a0f05", "lightBase": "#f7fee7", "font": "JetBrains Mono", "effect": "scan" },
-  { "id": "rose-quartz", "name": "Rose Quartz", "accent": "#fb7185", "darkBase": "#16080c", "lightBase": "#fff1f2", "font": "Fraunces", "effect": "wash" },
-  { "id": "cobalt", "name": "Cobalt", "accent": "#60a5fa", "darkBase": "#060f24", "lightBase": "#eff6ff", "font": "Space Grotesk", "effect": "grid" },
-  { "id": "solar-flare", "name": "Solar Flare", "accent": "#facc15", "darkBase": "#120f04", "lightBase": "#fefce8", "font": "Bebas Neue", "effect": "glow" },
-  { "id": "coral-reef", "name": "Coral Reef", "accent": "#fb923c", "darkBase": "#140b06", "lightBase": "#fff7ed", "font": "Bebas Neue", "effect": "wash" },
-  { "id": "forest-line", "name": "Forest Line", "accent": "#22c55e", "darkBase": "#05120a", "lightBase": "#f0fdf4", "font": "Space Grotesk", "effect": "none" },
-  { "id": "glacier", "name": "Glacier", "accent": "#7dd3fc", "darkBase": "#041421", "lightBase": "#f0f9ff", "font": "Instrument Serif", "effect": "grid" },
-  { "id": "lava-core", "name": "Lava Core", "accent": "#f87171", "darkBase": "#120507", "lightBase": "#fef2f2", "font": "Fraunces", "effect": "scan" },
-  { "id": "berry", "name": "Berry", "accent": "#e879f9", "darkBase": "#120516", "lightBase": "#fdf4ff", "font": "Cormorant Garamond", "effect": "wash" },
-  { "id": "sandstone", "name": "Sandstone", "accent": "#f59e0b", "darkBase": "#120c03", "lightBase": "#fffbeb", "font": "Cormorant Garamond", "effect": "none" },
-  { "id": "indigo-night", "name": "Indigo Night", "accent": "#818cf8", "darkBase": "#070a1c", "lightBase": "#eef2ff", "font": "Space Grotesk", "effect": "grid" },
-  { "id": "cyberspace", "name": "Cyberspace", "accent": "#22d3ee", "darkBase": "#020617", "lightBase": "#f0f9ff", "font": "JetBrains Mono", "effect": "glow" },
-  { "id": "wine-dark", "name": "Wine Dark", "accent": "#f43f5e", "darkBase": "#13060d", "lightBase": "#fff1f2", "font": "Instrument Serif", "effect": "none" },
-  { "id": "graphite", "name": "Graphite", "accent": "#a1a1aa", "darkBase": "#0a0a0c", "lightBase": "#fafafa", "font": "Inter", "effect": "none" },
-  { "id": "sherbet", "name": "Sherbet", "accent": "#fda4af", "darkBase": "#1a0a0d", "lightBase": "#fff5f6", "font": "Syne", "effect": "wash" },
-  { "id": "jade-ocean", "name": "Jade Ocean", "accent": "#10b981", "darkBase": "#05140e", "lightBase": "#ecfdf5", "font": "Fraunces", "effect": "glow" },
-  { "id": "tangerine", "name": "Tangerine", "accent": "#f97316", "darkBase": "#160b05", "lightBase": "#fff7ed", "font": "Bebas Neue", "effect": "wash" },
-  { "id": "amethyst", "name": "Amethyst", "accent": "#c084fc", "darkBase": "#100719", "lightBase": "#faf5ff", "font": "Cormorant Garamond", "effect": "glow" },
-  { "id": "liberty-blue", "name": "Liberty Blue", "accent": "#3b82f6", "darkBase": "#030b20", "lightBase": "#eff6ff", "font": "Space Grotesk", "effect": "grid" },
-  { "id": "teal-void", "name": "Teal Void", "accent": "#2dd4bf", "darkBase": "#031614", "lightBase": "#f0fdfa", "font": "Fraunces", "effect": "scan" },
-  { "id": "crimson-charge", "name": "Crimson Charge", "accent": "#ef4444", "darkBase": "#150407", "lightBase": "#fef2f2", "font": "Syne", "effect": "glow" }
+  {
+    "id": "rpn-garden",
+    "name": "RPN Garden",
+    "accent": "#ff2e72",
+    "style": "classic",
+    "desc": "Retro-modern calculator garden with ivory paper and crisp slate rules"
+  },
+  {
+    "id": "grid-meltdown",
+    "name": "Grid Meltdown",
+    "accent": "#e9ff39",
+    "style": "brutalist",
+    "desc": "Electric graph paper with neo-brutalist plates and hard offset shadows"
+  },
+  {
+    "id": "the-exploit-grimoire",
+    "name": "The Exploit Grimoire",
+    "accent": "#f0b92f",
+    "style": "arcane",
+    "desc": "Occult cryptology with stardust dots, gold foil, and double-line borders"
+  },
+  {
+    "id": "stack-underflow",
+    "name": "Stack Underflow",
+    "accent": "#f59e0b",
+    "style": "terminal",
+    "desc": "Retro CRT console with phosphor amber glow, scanlines, and square frames"
+  },
+  {
+    "id": "cryptographic-blockbuster",
+    "name": "Cryptographic Blockbuster",
+    "accent": "#06b6d4",
+    "style": "cyber",
+    "desc": "90s VHS cyber-thriller with chromatic neon glow and dark glass bevels"
+  },
+  {
+    "id": "proof-bonbons",
+    "name": "Proof Bonbons",
+    "accent": "#f472b6",
+    "style": "pastel",
+    "desc": "Candy-coated pastel neo-brutalism with chunky pill tags and offset shadows"
+  },
+  {
+    "id": "the-hash-crash",
+    "name": "The Hash Crash",
+    "accent": "#34d399",
+    "style": "isometric",
+    "desc": "Vaporwave trading floor with isometric perspective grid and mint tickers"
+  },
+  {
+    "id": "form-follows-failure",
+    "name": "Form Follows Failure",
+    "accent": "#dc2626",
+    "style": "bauhaus",
+    "desc": "Bauhaus constructivist geometry with cardinal red rules and angular borders"
+  },
+  {
+    "id": "twin-blades",
+    "name": "Twin Blades",
+    "accent": "#ef4444",
+    "style": "razor",
+    "desc": "Cyberpunk razor chrome with glowing laser crimson borders"
+  },
+  {
+    "id": "cathedral-of-constraints",
+    "name": "Cathedral of Constraints",
+    "accent": "#10b981",
+    "style": "gothic",
+    "desc": "Gothic basalt stone with stained-glass emerald and ruby accents"
+  },
+  {
+    "id": "orbiting-footnotes",
+    "name": "Orbiting Footnotes",
+    "accent": "#38bdf8",
+    "style": "astronomy",
+    "desc": "Celestial observatory with orbital coordinate grids and starlight cyan"
+  },
+  {
+    "id": "monsters-in-the-math",
+    "name": "Monsters in the Math",
+    "accent": "#22d3ee",
+    "style": "bioluminescent",
+    "desc": "Abyssal oceanic void with radioactive cyan and toxic purple halo"
+  },
+  {
+    "id": "sam-at-sunrise",
+    "name": "Sam at Sunrise",
+    "accent": "#fb923c",
+    "style": "synthwave",
+    "desc": "Outrun sunrise gradient with twilight horizon and glowing dusk cards"
+  },
+  {
+    "id": "mercury-keyspace",
+    "name": "Mercury Keyspace",
+    "accent": "#94a3b8",
+    "style": "metallic",
+    "desc": "Precision liquid mercury with blueprint grid and high-tolerance bevels"
+  },
+  {
+    "id": "crowd-signal",
+    "name": "Crowd Signal",
+    "accent": "#22c55e",
+    "style": "radar",
+    "desc": "Telemetry radar console with phosphor sweep circles and tactical telemetry"
+  },
+  {
+    "id": "mutant-mathematics",
+    "name": "Mutant Mathematics",
+    "accent": "#a3e635",
+    "style": "chalkboard",
+    "desc": "Classroom chalkboard slate with electric lime chalk and graph rules"
+  },
+  {
+    "id": "cut-paste-factor",
+    "name": "Cut, Paste, Factor",
+    "accent": "#facc15",
+    "style": "zine",
+    "desc": "Zine newsprint collage with yellow highlighter markers and punk brutalism"
+  }
 ]

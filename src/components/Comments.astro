@@ -85,7 +85,7 @@ const configured = Boolean(GISCUS_REPO && GISCUS_REPO_ID && GISCUS_CATEGORY_ID);
   // Keep the widget's theme in sync when the user toggles light/dark.
   // Delegated document-level listener survives view-transition DOM swaps.
   document.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).closest?.('#theme-toggle')) {
+    if ((e.target as HTMLElement).closest?.('#theme-toggle, .theme-toggle-btn')) {
       try {
         const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
         if (iframe?.contentWindow) {
