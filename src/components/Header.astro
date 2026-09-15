@@ -536,9 +536,26 @@ const isAboutActive = normalizedPath === `${normalizedBase}/about`;
     });
   }
 
+  function setupLogo() {
+    const logo = document.querySelector('.logo') as HTMLAnchorElement | null;
+    if (!logo) return;
+    logo.onclick = (e) => {
+      const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+      const homePath = (logo.getAttribute('href') || '/').replace(/\/$/, '') || '/';
+      if (currentPath === homePath) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+  }
+
   // Initialize on page load and Astro view-transition navigations
   setupMobileMenu();
-  document.addEventListener('astro:page-load', setupMobileMenu);
+  setupLogo();
+  document.addEventListener('astro:page-load', () => {
+    setupMobileMenu();
+    setupLogo();
+  });
   document.addEventListener('astro:after-swap', () => {
     const header = document.getElementById('site-header');
     if (header) header.classList.remove('menu-open');

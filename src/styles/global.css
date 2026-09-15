@@ -64,8 +64,20 @@ html[data-theme="light"] {
   padding: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 5.5rem;
+}
+
 html, body {
   height: 100%;
+  overflow-x: clip;
+  touch-action: manipulation;
+}
+
+a, button, input, select, textarea {
+  touch-action: manipulation;
 }
 
 ::selection {
@@ -114,10 +126,6 @@ main {
   }
 }
 
-/* Scroll-margin so sticky-header doesn't cover anchored headings */
-html {
-  scroll-padding-top: 5.5rem;
-}
 
 /* Links */
 a {
