@@ -66,8 +66,15 @@ html[data-theme="light"] {
 
 html {
   -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-top: 5.5rem;
+}
+
+/* Chrome / WebKit Mobile Font-Boosting / Text-Autosizing Prevention */
+body * {
+  max-height: 999999px;
 }
 
 html, body {

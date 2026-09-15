@@ -134,9 +134,31 @@ const rssUrl = `${normalizedBase}rss.xml`;
     />
   </head>
   <body>
-    <!-- Astro's view-transition swap copies the incoming page's <html> attributes,
-         which drops data-theme/data-skin. Re-apply the stored prefs right after every swap. -->
+    <!-- Astro view-transition swap: apply theme and skin in before-swap so incoming document has them immediately -->
     <script>
+      document.addEventListener('astro:before-swap', (e: any) => {
+        const root = document.documentElement;
+        let theme = root.getAttribute('data-theme');
+        if (!theme) {
+          try { theme = localStorage.getItem('theme'); } catch {}
+        }
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        let skin = root.getAttribute('data-skin');
+        if (!skin) {
+          try { skin = localStorage.getItem('theme-skin'); } catch {}
+        }
+        if (e.newDocument) {
+          e.newDocument.documentElement.setAttribute('data-theme', theme);
+          if (skin) {
+            e.newDocument.documentElement.setAttribute('data-skin', skin);
+          } else {
+            e.newDocument.documentElement.removeAttribute('data-skin');
+          }
+        }
+      });
+
       document.addEventListener('astro:after-swap', () => {
         const root = document.documentElement;
         let theme = null;

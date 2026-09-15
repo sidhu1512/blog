@@ -166,6 +166,16 @@ const isAboutActive = normalizedPath === `${normalizedBase}/about`;
     transition: color 0.2s ease;
   }
 
+  @media (max-width: 640px) {
+    .header-container {
+      padding: 0 1rem;
+      height: 52px;
+    }
+    .logo {
+      font-size: 1.18rem;
+    }
+  }
+
   /* Desktop Controls (>= 860px) */
   .desktop-controls {
     display: flex;
