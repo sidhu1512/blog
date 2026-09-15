@@ -559,15 +559,7 @@ const isAboutActive = normalizedPath === `${normalizedBase}/about`;
     };
   }
 
-  // Initialize on page load and Astro view-transition navigations
+  // Initialize on page load
   setupMobileMenu();
   setupLogo();
-  document.addEventListener('astro:page-load', () => {
-    setupMobileMenu();
-    setupLogo();
-  });
-  document.addEventListener('astro:after-swap', () => {
-    const header = document.getElementById('site-header');
-    if (header) header.classList.remove('menu-open');
-  });
 </script>

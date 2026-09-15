@@ -21,9 +21,7 @@ import '@fontsource/bebas-neue/latin-400.css';
 // KaTeX styles for math rendering
 import 'katex/dist/katex.min.css';
 
-import { ClientRouter } from 'astro:transitions';
 import { getCollection } from 'astro:content';
-
 import skins from '../theme-skins/skins.json';
 import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
@@ -122,7 +120,6 @@ const rssUrl = `${normalizedBase}rss.xml`;
     <meta name="generator" content={Astro.generator} />
     <script type="application/json" id="posts-json" set:html={JSON.stringify(allPosts)}></script>
     <link rel="alternate" type="application/rss+xml" title="Siddharth Bhadu - Engineering Blog" href={rssUrl} />
-    <ClientRouter />
     <SEO 
       title={title} 
       description={description} 
@@ -134,53 +131,6 @@ const rssUrl = `${normalizedBase}rss.xml`;
     />
   </head>
   <body>
-    <!-- Astro view-transition swap: apply theme and skin in before-swap so incoming document has them immediately -->
-    <script>
-      document.addEventListener('astro:before-swap', (e: any) => {
-        const root = document.documentElement;
-        let theme = root.getAttribute('data-theme');
-        if (!theme) {
-          try { theme = localStorage.getItem('theme'); } catch {}
-        }
-        if (theme !== 'light' && theme !== 'dark') {
-          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        }
-        let skin = root.getAttribute('data-skin');
-        if (!skin) {
-          try { skin = localStorage.getItem('theme-skin'); } catch {}
-        }
-        if (e.newDocument) {
-          e.newDocument.documentElement.setAttribute('data-theme', theme);
-          if (skin) {
-            e.newDocument.documentElement.setAttribute('data-skin', skin);
-          } else {
-            e.newDocument.documentElement.removeAttribute('data-skin');
-          }
-        }
-      });
-
-      document.addEventListener('astro:after-swap', () => {
-        const root = document.documentElement;
-        let theme = null;
-        try {
-          theme = localStorage.getItem('theme');
-        } catch {}
-        if (theme !== 'light' && theme !== 'dark') {
-          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        }
-        root.setAttribute('data-theme', theme);
-        let skin = null;
-        try {
-          skin = localStorage.getItem('theme-skin');
-        } catch {}
-        const valid = (root.dataset.skins || '').split(/\s+/);
-        if (skin && valid.includes(skin)) {
-          root.setAttribute('data-skin', skin);
-        } else {
-          root.removeAttribute('data-skin');
-        }
-      });
-    </script>
     <Header />
     <main>
       <slot />
@@ -191,12 +141,7 @@ const rssUrl = `${normalizedBase}rss.xml`;
     <FloatingDock />
 
     <script>
-      // Delegated handler for tag chips nested inside clickable post cards.
-      // Runs in the CAPTURE phase so it wins the race against the card link's
-      // own document-level listener (the Astro ClientRouter intercepts normal
-      // clicks and soft-navigates), then soft-navigates to the tag page.
-      let astroNavigate: ((href: string) => void) | undefined;
-      import('astro:transitions/client').then((m) => (astroNavigate = m.navigate)).catch(() => {});
+      // Delegated handler for tag chips nested inside clickable post cards
       document.addEventListener(
         'click',
         (e) => {
@@ -205,11 +150,7 @@ const rssUrl = `${normalizedBase}rss.xml`;
             if (!tagEl || !tagEl.dataset.tagLink) return;
             e.preventDefault();
             e.stopPropagation();
-            if (astroNavigate) {
-              astroNavigate(tagEl.dataset.tagLink);
-            } else {
-              window.location.assign(tagEl.dataset.tagLink);
-            }
+            window.location.href = tagEl.dataset.tagLink;
           } catch {}
         },
         true

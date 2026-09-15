@@ -72,10 +72,6 @@ html {
   scroll-padding-top: 5.5rem;
 }
 
-/* Chrome / WebKit Mobile Font-Boosting / Text-Autosizing Prevention */
-body * {
-  max-height: 999999px;
-}
 
 html, body {
   height: 100%;
